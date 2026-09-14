@@ -21,14 +21,16 @@ def run(cmd: list[str]) -> None:
     subprocess.run(cmd, cwd=ROOT, check=True)
 
 
-p = argparse.ArgumentParser(description="Production FLVYT evidence-to-video build")
-p.add_argument("input", help="Evidence JSON or ready project JSON")
+p = argparse.ArgumentParser(description="Production FLVYT research/evidence-to-video build")
+p.add_argument("input", help="Research JSON, evidence JSON or ready project JSON")
 p.add_argument("--out", default="out/final.mp4")
 p.add_argument("--tts-command", default=os.environ.get("FLVYT_TTS_COMMAND"), help="Local TTS command template")
 p.add_argument("--tts-model", default=os.environ.get("FLVYT_TTS_MODEL"))
 p.add_argument("--music")
 p.add_argument("--assets", default="assets/registry.json", help="License-cleared asset registry")
 p.add_argument("--captions-model", default=os.environ.get("FLVYT_WHISPER_MODEL", "small"))
+p.add_argument("--ground-model", default=os.environ.get("FLVYT_LLM_MODEL", "llama3.2"))
+p.add_argument("--ground-endpoint", default=os.environ.get("FLVYT_LLM_ENDPOINT", "http://127.0.0.1:11434/api/generate"))
 p.add_argument("--no-auto-captions", action="store_true")
 args = p.parse_args()
 
@@ -37,7 +39,13 @@ if not source.is_absolute():
     source = ROOT / source
 raw = json.loads(source.read_text(encoding="utf-8"))
 project = source
-if isinstance(raw, dict) and "evidence" in raw and "beats" not in raw:
+
+if isinstance(raw, dict) and "sources" in raw and "evidence" not in raw and "beats" not in raw:
+    evidence = ROOT / "projects/evidence.generated.json"
+    run([sys.executable, "scripts/ground.py", str(source), "--out", str(evidence), "--model", args.ground_model, "--endpoint", args.ground_endpoint])
+    project = ROOT / "projects/generated.json"
+    run([sys.executable, "scripts/plan.py", str(evidence), "--out", str(project)])
+elif isinstance(raw, dict) and "evidence" in raw and "beats" not in raw:
     project = ROOT / "projects/generated.json"
     run([sys.executable, "scripts/plan.py", str(source), "--out", str(project)])
 
