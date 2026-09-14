@@ -1,10 +1,10 @@
 {
   "assets": [
     {
-      "id": "example_factory",
-      "path": "assets/factory.jpg",
+      "id": "example-chip-factory",
+      "path": "public/assets/chip-factory.jpg",
       "kind": "image",
-      "tags": ["semiconductor", "factory", "manufacturing"],
+      "tags": ["chip", "semiconductor", "factory", "manufacturing"],
       "license": "owned",
       "attribution": "",
       "source": "",
