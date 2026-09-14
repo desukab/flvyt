@@ -1,0 +1,22 @@
+{
+  "title": "THE HIDDEN SEMICONDUCTOR BOTTLENECK",
+  "thesis": "Modern computing depends on a surprisingly concentrated chain of specialized technology.",
+  "evidence": [
+    {
+      "id": "src01",
+      "claim": "The semiconductor industry is divided across highly specialized design, manufacturing, equipment and packaging businesses.",
+      "source": "REPLACE_WITH_VERIFIED_SOURCE_URL",
+      "source_type": "article",
+      "importance": "high",
+      "tags": ["industry"]
+    },
+    {
+      "id": "src02",
+      "claim": "The equipment and manufacturing steps required for advanced chips depend on a network of specialized suppliers.",
+      "source": "REPLACE_WITH_VERIFIED_SOURCE_URL",
+      "source_type": "article",
+      "importance": "high",
+      "tags": ["industry", "geography"]
+    }
+  ]
+}
