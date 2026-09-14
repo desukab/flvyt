@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -25,8 +26,9 @@ args = p.parse_args()
 source = Path(args.input)
 if not source.is_absolute():
     source = ROOT / source
+raw = json.loads(source.read_text(encoding="utf-8"))
 project = source
-if source.name.endswith("evidence.example.json") or "evidence" in source.name:
+if isinstance(raw, dict) and "evidence" in raw and "beats" not in raw:
     project = ROOT / "projects/generated.json"
     run([sys.executable, "scripts/plan.py", str(source), "--out", str(project)])
 
