@@ -1,0 +1,13 @@
+{
+  "video_autopilot_kit": {
+    "repository": "https://github.com/Hao0321/video-autopilot-kit.git",
+    "ref": "main",
+    "license": "MIT",
+    "purpose": "Reusable production gates, audio helpers, captions and media QA. FLVYT adds documentary editorial intelligence on top."
+  },
+  "remotion": {
+    "package": "remotion",
+    "version": "4.0.524",
+    "license_note": "Remotion has a special license. Individuals and for-profit organizations with up to 3 employees may use it commercially for free under the current Free License; larger for-profit organizations need a Company License."
+  }
+}
