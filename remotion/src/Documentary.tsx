@@ -13,6 +13,7 @@ export type DocumentaryBeat = {
   label?: string;
   value?: number;
   unit?: string;
+  sources?: string[];
 };
 
 export type DocumentaryProps = {
@@ -27,7 +28,7 @@ export type DocumentaryProps = {
 const Background: React.FC = () => {
   const frame = useCurrentFrame();
   const drift = interpolate(frame, [0, 9000], [0, -180], {extrapolateRight: 'clamp'});
-  return <AbsoluteFill style={{background: '#070b10', overflow: 'hidden'}}>
+  return <AbsoluteFill style={{background:'#070b10',overflow:'hidden'}}>
     <div style={{position:'absolute',inset:-180,transform:`translate3d(${drift}px,${drift*.35}px,0)`,background:'radial-gradient(circle at 20% 30%,rgba(70,130,180,.22),transparent 34%),radial-gradient(circle at 80% 65%,rgba(160,80,210,.18),transparent 30%)'}} />
     <div style={{position:'absolute',inset:0,backgroundImage:'linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px)',backgroundSize:'80px 80px',opacity:.35}} />
     <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.72) 100%)'}} />
@@ -37,7 +38,7 @@ const Background: React.FC = () => {
 const Intro: React.FC<{title:string;subtitle:string}> = ({title,subtitle}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const p = spring({frame, fps, config:{damping:180,stiffness:80}});
+  const p = spring({frame,fps,config:{damping:180,stiffness:80}});
   const y = interpolate(p,[0,1],[70,0],{easing:Easing.out(Easing.cubic)});
   return <AbsoluteFill style={{padding:'0 140px',justifyContent:'center'}}>
     <div style={{opacity:p,transform:`translateY(${y}px)`}}>
@@ -52,7 +53,7 @@ const Intro: React.FC<{title:string;subtitle:string}> = ({title,subtitle}) => {
 export const Documentary: React.FC<DocumentaryProps> = ({title,subtitle,beats}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  const introFrames = Math.min(150, Math.round(fps * 5));
+  const introFrames = Math.min(150,Math.round(fps*5));
   let cursor = introFrames;
   let active = -1;
   let activeStart = 0;
@@ -68,7 +69,6 @@ export const Documentary: React.FC<DocumentaryProps> = ({title,subtitle,beats}) 
   const opacity = interpolate(p,[0,1],[0,1],{extrapolateRight:'clamp'});
   const outro = beat ? Math.max(0,Math.round(beat.seconds*fps)-18) : 0;
   const outP = beat ? interpolate(local,[outro,outro+18],[1,0],{extrapolateLeft:'clamp',extrapolateRight:'clamp'}) : 1;
-
   return <AbsoluteFill style={{fontFamily:'Arial,Helvetica,sans-serif',color:'white'}}>
     <Background />
     {frame < introFrames && <Intro title={title} subtitle={subtitle} />}
@@ -80,7 +80,8 @@ export const Documentary: React.FC<DocumentaryProps> = ({title,subtitle,beats}) 
       <AbsoluteFill style={{display:'flex',alignItems:'center',justifyContent:'center',transform:`translateX(${x}px)`}}>
         <Visual {...beat} />
       </AbsoluteFill>
-      <div style={{position:'absolute',left:80,right:80,bottom:45,height:2,background:'rgba(255,255,255,.12)'}}>
+      {beat.sources && beat.sources.length > 0 && <div style={{position:'absolute',left:80,bottom:62,fontSize:15,letterSpacing:1,color:'rgba(255,255,255,.36)',maxWidth:1500,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>SOURCE: {beat.sources.join(' · ')}</div>}
+      <div style={{position:'absolute',left:80,right:80,bottom:35,height:2,background:'rgba(255,255,255,.12)'}}>
         <div style={{height:'100%',width:`${Math.min(100,(local/(Math.max(1,beat.seconds*fps)))*100)}%`,background:'rgba(255,255,255,.72)'}} />
       </div>
     </AbsoluteFill>}
