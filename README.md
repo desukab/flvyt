@@ -91,7 +91,7 @@ Use `scripts/plan.py` to turn this into executable documentary beats. FLVYT inte
 
 ## Local narration and automatic timing
 
-FLVYT does not require a paid TTS provider. The TTS adapter accepts any local executable using `{model}` and `{output}` placeholders. Piper is one supported option. Review the license of the specific voice model before commercial use; the Piper software is MIT, while individual voice models can have their own licensing terms. citeturn0search0turn0search1
+FLVYT does not require a paid TTS provider. The TTS adapter accepts any local executable using `{model}` and `{output}` placeholders. Piper is one supported option. Review the license of the specific voice model before commercial use; the Piper software is MIT, while individual voice models can have their own licensing terms.
 
 After synthesis, FLVYT measures each narration clip and retimes the corresponding visual beat. This prevents the common automated-video failure where narration and visuals drift apart.
 
