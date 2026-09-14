@@ -80,7 +80,6 @@ export const Documentary: React.FC<DocumentaryProps> = ({title,subtitle,beats}) 
       <AbsoluteFill style={{display:'flex',alignItems:'center',justifyContent:'center',transform:`translateX(${x}px)`}}>
         <Visual {...beat} />
       </AbsoluteFill>
-      {beat.sources && beat.sources.length > 0 && <div style={{position:'absolute',left:80,bottom:62,fontSize:15,letterSpacing:1,color:'rgba(255,255,255,.36)',maxWidth:1500,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>SOURCE: {beat.sources.join(' · ')}</div>}
       <div style={{position:'absolute',left:80,right:80,bottom:35,height:2,background:'rgba(255,255,255,.12)'}}>
         <div style={{height:'100%',width:`${Math.min(100,(local/(Math.max(1,beat.seconds*fps)))*100)}%`,background:'rgba(255,255,255,.72)'}} />
       </div>
