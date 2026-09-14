@@ -7,7 +7,7 @@ from typing import Any
 
 
 def _time(seconds: float) -> str:
-    ms = int(round(seconds * 1000))
+    ms = max(0, int(round(seconds * 1000)))
     h, ms = divmod(ms, 3_600_000)
     m, ms = divmod(ms, 60_000)
     s, ms = divmod(ms, 1000)
@@ -15,7 +15,9 @@ def _time(seconds: float) -> str:
 
 
 def words_to_srt(words: list[dict[str, Any]], output: str | Path,
-                 max_words: int = 7, max_duration: float = 2.2) -> Path:
+                 max_words: int = 7, max_duration: float = 2.2,
+                 offset: float = 5.0) -> Path:
+    """Write readable captions and account for FLVYT's five-second intro."""
     rows: list[tuple[float, float, str]] = []
     current: list[str] = []
     start = end = None
@@ -23,7 +25,7 @@ def words_to_srt(words: list[dict[str, Any]], output: str | Path,
         text = str(word.get("text", "")).strip()
         if not text:
             continue
-        ws, we = float(word["start"]), float(word["end"])
+        ws, we = float(word["start"]) + offset, float(word["end"]) + offset
         if start is None:
             start = ws
         current.append(text)
