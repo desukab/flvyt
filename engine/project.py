@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from pathlib import Path
 import json
 from typing import Any
@@ -21,6 +21,7 @@ class Beat:
     value: float | None = None
     unit: str | None = None
     narration: str | None = None
+    sources: list[str] = field(default_factory=list)
 
 
 @dataclass
