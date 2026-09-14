@@ -2,6 +2,14 @@ import React from 'react';
 import {AbsoluteFill, Easing, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import {Visual} from './Visuals';
 
+export type DocumentaryShot = {
+  id: string;
+  seconds: number;
+  visual: string;
+  text: string;
+  mode?: string;
+};
+
 export type DocumentaryBeat = {
   id: string;
   kind: string;
@@ -14,6 +22,7 @@ export type DocumentaryBeat = {
   value?: number;
   unit?: string;
   sources?: string[];
+  shots?: DocumentaryShot[];
 };
 
 export type DocumentaryProps = {
@@ -50,6 +59,11 @@ const Intro: React.FC<{title:string;subtitle:string}> = ({title,subtitle}) => {
   </AbsoluteFill>;
 };
 
+function shotPlan(beat: DocumentaryBeat): DocumentaryShot[] {
+  if (beat.shots?.length) return beat.shots;
+  return [{id:'s1',seconds:beat.seconds,visual:beat.visual,text:beat.text,mode:'hold'}];
+}
+
 export const Documentary: React.FC<DocumentaryProps> = ({title,subtitle,beats}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
@@ -57,31 +71,46 @@ export const Documentary: React.FC<DocumentaryProps> = ({title,subtitle,beats}) 
   let cursor = introFrames;
   let active = -1;
   let activeStart = 0;
+  let activeShot: DocumentaryShot | undefined;
+  let activeShotStart = 0;
   for (let i=0;i<beats.length;i++) {
-    const end = cursor + Math.max(15,Math.round(beats[i].seconds*fps));
-    if (frame >= cursor && frame < end) {active=i;activeStart=cursor;break;}
+    const beatFrames = Math.max(15,Math.round(beats[i].seconds*fps));
+    const end = cursor + beatFrames;
+    if (frame >= cursor && frame < end) {
+      active=i; activeStart=cursor;
+      const shots=shotPlan(beats[i]);
+      let sc=cursor;
+      for (const shot of shots) {
+        const shotEnd=sc+Math.max(15,Math.round(shot.seconds*fps));
+        if (frame>=sc && frame<shotEnd) {activeShot=shot;activeShotStart=sc;break;}
+        sc=shotEnd;
+      }
+      break;
+    }
     cursor=end;
   }
   const beat = active >= 0 ? beats[active] : undefined;
-  const local = Math.max(0,frame-activeStart);
-  const p = beat ? spring({frame:local,fps,config:{damping:170,stiffness:95}}) : 0;
+  const shot = activeShot || (beat ? shotPlan(beat)[0] : undefined);
+  const local = Math.max(0,frame-(shot ? activeShotStart : activeStart));
+  const shotFrames = shot ? Math.max(15,Math.round(shot.seconds*fps)) : 1;
+  const p = shot ? spring({frame:local,fps,config:{damping:170,stiffness:95}}) : 0;
   const x = interpolate(p,[0,1],[45,0],{extrapolateRight:'clamp'});
   const opacity = interpolate(p,[0,1],[0,1],{extrapolateRight:'clamp'});
-  const outro = beat ? Math.max(0,Math.round(beat.seconds*fps)-18) : 0;
-  const outP = beat ? interpolate(local,[outro,outro+18],[1,0],{extrapolateLeft:'clamp',extrapolateRight:'clamp'}) : 1;
+  const outro = Math.max(0,shotFrames-18);
+  const outP = shot ? interpolate(local,[outro,outro+18],[1,0],{extrapolateLeft:'clamp',extrapolateRight:'clamp'}) : 1;
   return <AbsoluteFill style={{fontFamily:'Arial,Helvetica,sans-serif',color:'white'}}>
     <Background />
     {frame < introFrames && <Intro title={title} subtitle={subtitle} />}
-    {beat && <AbsoluteFill style={{opacity:opacity*outP}}>
+    {beat && shot && <AbsoluteFill style={{opacity:opacity*outP}}>
       <div style={{position:'absolute',top:62,left:80,right:80,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
         <div style={{fontSize:20,letterSpacing:5,color:'rgba(255,255,255,.48)'}}>{String(active+1).padStart(2,'0')} / {String(beats.length).padStart(2,'0')}</div>
-        <div style={{fontSize:20,letterSpacing:4,color:'rgba(255,255,255,.42)',textTransform:'uppercase'}}>{beat.label || beat.visual}</div>
+        <div style={{fontSize:20,letterSpacing:4,color:'rgba(255,255,255,.42)',textTransform:'uppercase'}}>{beat.label || shot.visual}</div>
       </div>
-      <AbsoluteFill style={{display:'flex',alignItems:'center',justifyContent:'center',transform:`translateX(${x}px)`}}>
-        <Visual {...beat} />
+      <AbsoluteFill style={{display:'flex',alignItems:'center',justifyContent:'center',transform:`translateX(${x}px) scale(${shot.mode==='punch'?1.035:1})`}}>
+        <Visual {...beat} visual={shot.visual} text={shot.text} />
       </AbsoluteFill>
       <div style={{position:'absolute',left:80,right:80,bottom:35,height:2,background:'rgba(255,255,255,.12)'}}>
-        <div style={{height:'100%',width:`${Math.min(100,(local/(Math.max(1,beat.seconds*fps)))*100)}%`,background:'rgba(255,255,255,.72)'}} />
+        <div style={{height:'100%',width:`${Math.min(100,(local/Math.max(1,shotFrames))*100)}%`,background:'rgba(255,255,255,.72)'}} />
       </div>
     </AbsoluteFill>}
   </AbsoluteFill>;
