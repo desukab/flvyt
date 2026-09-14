@@ -3,11 +3,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+from engine.asset_director import assign_assets
+from engine.timing import retime_project
 
 
 def run(cmd: list[str]) -> None:
@@ -15,12 +19,15 @@ def run(cmd: list[str]) -> None:
     subprocess.run(cmd, cwd=ROOT, check=True)
 
 
-p = argparse.ArgumentParser(description="Build a FLVYT documentary from an evidence pack or project")
+p = argparse.ArgumentParser(description="Production FLVYT evidence-to-video build")
 p.add_argument("input", help="Evidence JSON or ready project JSON")
 p.add_argument("--out", default="out/final.mp4")
-p.add_argument("--tts-command", help="Optional local TTS command template")
-p.add_argument("--tts-model")
+p.add_argument("--tts-command", default=os.environ.get("FLVYT_TTS_COMMAND"), help="Local TTS command template")
+p.add_argument("--tts-model", default=os.environ.get("FLVYT_TTS_MODEL"))
 p.add_argument("--music")
+p.add_argument("--assets", default="assets/registry.json", help="License-cleared asset registry")
+p.add_argument("--captions-model", default=os.environ.get("FLVYT_WHISPER_MODEL", "small"))
+p.add_argument("--no-auto-captions", action="store_true")
 args = p.parse_args()
 
 source = Path(args.input)
@@ -32,14 +39,30 @@ if isinstance(raw, dict) and "evidence" in raw and "beats" not in raw:
     project = ROOT / "projects/generated.json"
     run([sys.executable, "scripts/plan.py", str(source), "--out", str(project)])
 
+registry = ROOT / args.assets if not Path(args.assets).is_absolute() else Path(args.assets)
+if registry.exists():
+    # Asset selection is deterministic and refuses unlicensed/missing media.
+    from engine.project import Project
+    assign_assets(Project.load(project), registry, ROOT)
+
+manifest = ROOT / "out/narration/tts_manifest.json"
 if args.tts_command:
     cmd = [sys.executable, "scripts/synthesize.py", str(project), "--command", args.tts_command, "--out-dir", "out/narration"]
     if args.tts_model:
         cmd += ["--model", args.tts_model]
     run(cmd)
+    if manifest.exists():
+        retime_project(project, manifest)
+
+transcript = None
+if args.tts_command and not args.no_auto_captions:
+    transcript = ROOT / "out/narration/transcript.json"
+    run([sys.executable, "scripts/transcribe.py", "out/narration/master.wav", "--model", args.captions_model, "--output", str(transcript)])
 
 render = [sys.executable, "scripts/render.py", str(project), "--out", args.out]
 if args.music:
     render += ["--music", args.music]
+if transcript:
+    render += ["--transcript", str(transcript)]
 run(render)
-print(f"FLVYT build complete: {args.out}")
+print(f"FLVYT production build complete: {args.out}")
