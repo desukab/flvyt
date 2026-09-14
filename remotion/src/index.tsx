@@ -1,8 +1,8 @@
 import React from 'react';
-import {CalculateMetadataFunction, Composition, registerRoot} from 'remotion';
+import {Composition, registerRoot} from 'remotion';
 import {Documentary, DocumentaryProps} from './Documentary';
 
-const calculateMetadata: CalculateMetadataFunction<DocumentaryProps> = ({props}) => {
+const calculateMetadata = ({props}: {props: DocumentaryProps}) => {
   const beats = props.beats ?? [];
   const seconds = Math.max(30, beats.reduce((sum, beat) => sum + Math.max(0.5, beat.seconds || 0), 0));
   return {durationInFrames: Math.ceil(seconds * (props.fps || 30))};
