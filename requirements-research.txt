@@ -1,0 +1,3 @@
+# Optional zero-API research helpers.
+ddgs
+trafilatura>=2.0
