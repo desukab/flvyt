@@ -1,0 +1,3 @@
+# Optional local transcription. The core FLVYT Python layer remains stdlib-only.
+# faster-whisper runs Whisper inference locally and does not require a cloud API.
+faster-whisper
