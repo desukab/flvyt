@@ -5,7 +5,7 @@ layer without changing the project, visual, asset or rendering contracts.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 import json
 from pathlib import Path
 from typing import Any
@@ -40,11 +40,10 @@ class StoryPack:
 def build_beats(pack: StoryPack) -> list[dict[str, Any]]:
     """Create a restrained hook → context → evidence → implication → thesis arc."""
     rows = sorted(pack.evidence, key=lambda x: (x.importance != "high", x.id))
-    beats: list[dict[str, Any]] = []
-    beats.append({
+    beats: list[dict[str, Any]] = [{
         "id": "hook", "kind": "hook", "text": pack.thesis or pack.title,
         "seconds": 4.0, "visual": "claim", "emphasis": "high", "label": "THE QUESTION",
-    })
+    }]
     if rows:
         beats.append({
             "id": "context", "kind": "context",
@@ -52,22 +51,24 @@ def build_beats(pack: StoryPack) -> list[dict[str, Any]]:
             "seconds": 4.0, "visual": "broll", "emphasis": "normal", "label": "THE SYSTEM",
         })
     for i, ev in enumerate(rows):
-        visual = "stat" if any(ch.isdigit() for ch in ev.claim) else ("quote" if ev.source_type == "interview" else "claim")
+        visual = "quote" if ev.source_type == "interview" else ("map" if "geography" in (ev.tags or []) else "claim")
         beats.append({
             "id": f"e{i+1:02d}", "kind": "evidence", "text": ev.claim,
             "seconds": 4.0 if ev.importance == "high" else 3.4,
             "visual": visual, "emphasis": "high" if ev.importance == "high" else "normal",
             "label": ev.source_type.upper(), "sources": [ev.source],
         })
-    beats.append({
-        "id": "implication", "kind": "implication",
-        "text": "The important detail is not any single company or machine; it is the dependency between them.",
-        "seconds": 4.2, "visual": "map", "emphasis": "normal", "label": "THE CONNECTION",
-    })
-    beats.append({
-        "id": "thesis", "kind": "thesis", "text": pack.thesis or pack.title,
-        "seconds": 4.4, "visual": "quote", "emphasis": "high", "label": "THE THESIS",
-    })
+    beats.extend([
+        {
+            "id": "implication", "kind": "implication",
+            "text": "The important detail is not any single company or machine; it is the dependency between them.",
+            "seconds": 4.2, "visual": "map", "emphasis": "normal", "label": "THE CONNECTION",
+        },
+        {
+            "id": "thesis", "kind": "thesis", "text": pack.thesis or pack.title,
+            "seconds": 4.4, "visual": "quote", "emphasis": "high", "label": "THE THESIS",
+        },
+    ])
     return beats
 
 
