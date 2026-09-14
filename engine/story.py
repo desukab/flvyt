@@ -37,6 +37,29 @@ class StoryPack:
         )
 
 
+def _visual_for_evidence(ev: Evidence) -> str:
+    """Choose a visual from explicit editorial metadata, never from incidental digits.
+
+    A claim containing a year, percentage, model number, or dollar amount is still a
+    claim unless the evidence pack explicitly marks it as a stat. This prevents the
+    director from turning ordinary factual sentences into misleading counter cards.
+    """
+    tags = {tag.lower() for tag in (ev.tags or [])}
+    if ev.source_type == "interview":
+        return "quote"
+    if "geography" in tags or "map" in tags:
+        return "map"
+    if "timeline" in tags:
+        return "timeline"
+    if "stat" in tags or "chart" in tags:
+        return "stat"
+    if "portrait" in tags or "person" in tags:
+        return "portrait"
+    if "company" in tags or "logo" in tags:
+        return "logo"
+    return "claim"
+
+
 def build_beats(pack: StoryPack) -> list[dict[str, Any]]:
     """Create a restrained hook → context → evidence → implication → thesis arc."""
     rows = sorted(pack.evidence, key=lambda x: (x.importance != "high", x.id))
@@ -51,7 +74,7 @@ def build_beats(pack: StoryPack) -> list[dict[str, Any]]:
             "seconds": 4.0, "visual": "broll", "emphasis": "normal", "label": "THE SYSTEM",
         })
     for i, ev in enumerate(rows):
-        visual = "quote" if ev.source_type == "interview" else ("map" if "geography" in (ev.tags or []) else "claim")
+        visual = _visual_for_evidence(ev)
         beats.append({
             "id": f"e{i+1:02d}", "kind": "evidence", "text": ev.claim,
             "seconds": 4.0 if ev.importance == "high" else 3.4,
