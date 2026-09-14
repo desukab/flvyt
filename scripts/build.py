@@ -11,6 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from engine.asset_director import assign_assets
+from engine.audio import concat_wavs
+from engine.project import Project
 from engine.timing import retime_project
 
 
@@ -41,9 +43,9 @@ if isinstance(raw, dict) and "evidence" in raw and "beats" not in raw:
 
 registry = ROOT / args.assets if not Path(args.assets).is_absolute() else Path(args.assets)
 if registry.exists():
-    # Asset selection is deterministic and refuses unlicensed/missing media.
-    from engine.project import Project
-    assign_assets(Project.load(project), registry, ROOT)
+    planned = assign_assets(Project.load(project), registry, ROOT)
+    project = ROOT / "projects/asset_planned.json"
+    project.write_text(json.dumps(planned.props(), indent=2, ensure_ascii=False), encoding="utf-8")
 
 manifest = ROOT / "out/narration/tts_manifest.json"
 if args.tts_command:
@@ -53,6 +55,10 @@ if args.tts_command:
     run(cmd)
     if manifest.exists():
         retime_project(project, manifest)
+        manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
+        ordered = [Path(manifest_data[b["id"]]) for b in Project.load(project).props()["beats"] if b["id"] in manifest_data]
+        if ordered:
+            concat_wavs(ordered, ROOT / "out/narration/master.wav")
 
 transcript = None
 if args.tts_command and not args.no_auto_captions:
