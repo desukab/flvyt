@@ -51,19 +51,35 @@ python scripts/render.py projects/demo.json --out out/demo.mp4
 
 The renderer is deterministic: the JSON project is normalized by `engine/director.py`, converted to Remotion props, rendered without a manual timeline, then given an audio stream and delivery QA.
 
+## Evidence → video
+
+A structured evidence pack can become a documentary project automatically:
+
+```bash
+python scripts/plan.py projects/evidence.example.json --out projects/generated.json
+python scripts/render.py projects/generated.json --out out/final.mp4
+```
+
+Or use the build orchestrator:
+
+```bash
+python scripts/build.py projects/evidence.example.json --out out/final.mp4
+```
+
+The evidence pack keeps source URLs attached to the relevant beats so the rendered documentary can display provenance instead of losing the research trail.
+
 ## Local narration
 
 FLVYT does not hard-code a paid TTS API. Install any local TTS executable you are licensed to use and pass its command template to the adapter. For example, a local Piper installation can be wired as:
 
 ```bash
-python scripts/synthesize.py projects/demo.json \
-  --command 'piper --model {model} --output_file {output}' \
-  --model /path/to/voice.onnx
-
-python scripts/render.py projects/demo.json --out out/demo.mp4
+python scripts/build.py projects/evidence.example.json \
+  --tts-command 'piper --model {model} --output_file {output}' \
+  --tts-model /path/to/voice.onnx \
+  --out out/final.mp4
 ```
 
-The TTS manifest is then concatenated in beat order. If no narration exists, the demo still renders with a valid silent audio track.
+The TTS manifest is concatenated in beat order. If no narration exists, the demo still renders with a valid silent audio track.
 
 ## Local transcription + captions
 
@@ -77,7 +93,7 @@ The transcript contains word timestamps; the renderer can convert them into an S
 
 ## Asset discipline
 
-`engine/assets.py` provides a registry that requires every selected asset to carry an explicit ownership/license class such as `owned`, `public-domain`, `cc0`, `cc-by`, `cc-by-sa`, or `licensed`. FLVYT does not automatically scrape arbitrary copyrighted B-roll.
+`engine/assets.py` provides a registry that requires every selected asset to carry an explicit ownership/license class such as `owned`, `public-domain`, `cc0`, `cc-by`, `cc-by-sa`, or `licensed`. FLVYT does not automatically scrape arbitrary copyrighted B-roll. Local visual assets intended for Remotion should live under `public/` and be referenced relative to that folder.
 
 ## Development
 
