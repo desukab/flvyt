@@ -3,7 +3,7 @@ from __future__ import annotations
 from .project import Beat, Project
 
 # Documentary editing grammar. Deterministic by design: the same script produces
-a repeatable visual plan, making automated rendering debuggable.
+# a repeatable visual plan, making automated rendering debuggable.
 VISUALS = {
     "claim": ("text", 3.2),
     "stat": ("counter", 2.8),
