@@ -7,22 +7,26 @@ Production-oriented automated faceless technology-documentary engine.
 FLVYT is **not another video editor written from scratch**. It is the editorial brain and orchestration layer sitting on top of proven video infrastructure.
 
 ```text
-Topic / research / evidence
-        ↓
-Grounded story + documentary beats
-        ↓
+Topic
+  ↓
+Local web research
+  ↓
+Source-grounded evidence
+  ↓
+Documentary beats
+  ↓
 Editorial director
-        ↓
+  ↓
 License-cleared asset matching
-        ↓
+  ↓
 Local narration + audio-driven timing
-        ↓
+  ↓
 Remotion motion graphics / B-roll treatment
-        ↓
+  ↓
 FFmpeg mix + captions + delivery mux
-        ↓
+  ↓
 Technical QA
-        ↓
+  ↓
 FINAL MP4
 ```
 
@@ -35,21 +39,43 @@ The target is a serious faceless technology channel: controlled pacing, visual h
 - **FFmpeg** — local audio/video processing and final delivery.
 - **faster-whisper (optional/local)** — word and segment timestamps for automatic captions.
 - **Piper or another locally installed TTS engine** — local narration with no paid API requirement.
-
-The upstream MIT notice is preserved in `LICENSES/VIDEO_AUTOPILOT_KIT_MIT.txt` and copied into the vendor directory by the bootstrap script.
+- **ddgs + Trafilatura (optional/local)** — no-key web discovery and readable source extraction.
+- **Ollama-compatible local LLM (optional/local)** — source-grounded evidence generation without a paid API.
 
 ## One-command production build
 
-Requirements: Node 20+, Python 3.10+, FFmpeg. For narration/captions, install the optional local dependencies and a local TTS voice.
+Requirements: Node 20+, Python 3.10+, FFmpeg. For the fully automated local workflow, install the optional research/transcription dependencies and run a local TTS engine and Ollama-compatible model.
 
 ```bash
 npm install
 python scripts/bootstrap_upstream.py
+python -m pip install -r requirements-research.txt
+python -m pip install -r requirements-local.txt
 python -m compileall engine scripts
 npm run typecheck
 ```
 
-With a ready evidence pack:
+### From a topic to a video
+
+1. Collect candidate sources:
+
+```bash
+python scripts/research.py "How TSMC became indispensable to advanced computing" \
+  --out projects/research.json
+```
+
+2. Put the research through a local source-grounding model and build the documentary automatically:
+
+```bash
+python scripts/build.py projects/research.json \
+  --tts-command 'piper --model {model} --output_file {output}' \
+  --tts-model /path/to/voice.onnx \
+  --out out/final.mp4
+```
+
+The local grounding gate refuses evidence items whose source URL was not present in the collected research and refuses evidence without a supporting quote. The resulting evidence should still be reviewed before publishing.
+
+### From an already verified evidence pack
 
 ```bash
 python scripts/build.py projects/evidence.example.json \
@@ -58,7 +84,7 @@ python scripts/build.py projects/evidence.example.json \
   --out out/final.mp4
 ```
 
-Without narration, the same pipeline renders a valid video with a silent audio track:
+Without narration, the same renderer can produce a valid video with a silent audio track:
 
 ```bash
 python scripts/build.py projects/evidence.example.json --out out/final.mp4
@@ -68,7 +94,7 @@ The build performs story planning, asset matching when a registry is supplied, T
 
 ## Evidence format
 
-The preferred production input is an evidence pack. It keeps claims tied to sources rather than asking the renderer to invent facts.
+The preferred verified production input is an evidence pack. It keeps claims tied to sources rather than asking the renderer to invent facts.
 
 ```json
 {
@@ -97,13 +123,7 @@ After synthesis, FLVYT measures each narration clip and retimes the correspondin
 
 ## Captions
 
-Install the local transcription dependency:
-
-```bash
-python -m pip install -r requirements-local.txt
-```
-
-When TTS is enabled, `scripts/build.py` automatically transcribes the assembled narration with faster-whisper and muxes timed SRT captions into the MP4. Caption timestamps account for the documentary intro.
+When TTS is enabled, `scripts/build.py` automatically assembles the narration, transcribes it with faster-whisper and muxes timed SRT captions into the MP4. Caption timestamps account for the documentary intro.
 
 ## Asset discipline
 
@@ -122,7 +142,7 @@ Local visual assets intended for Remotion live under `public/` and are reference
 
 ## Architecture boundary
 
-FLVYT owns the **editorial intelligence**: beat planning, visual intent, timing, asset matching, reusable motion primitives and deterministic orchestration. Remotion owns programmatic visuals; FFmpeg and the reused upstream tooling own media processing, audio, captions and delivery gates.
+FLVYT owns the **editorial intelligence**: research orchestration, grounding gates, beat planning, visual intent, timing, asset matching, reusable motion primitives and deterministic orchestration. Remotion owns programmatic visuals; FFmpeg and the reused upstream tooling own media processing, audio, captions and delivery gates.
 
 ## Validation
 
@@ -135,4 +155,4 @@ npm run python-check
 
 ## Licensing
 
-FLVYT's original code is provided separately from third-party components. Check `vendor/upstream.lock.json` and `LICENSES/` before redistributing a build. Remotion has a special license; verify its current terms for your organization before commercial redistribution of the software itself.
+FLVYT's original code is provided separately from third-party components. Check `vendor/upstream.lock.json` and `LICENSES/` before redistributing a build. Remotion has a special license; verify its current terms for your organization before commercial redistribution of the software itself. Optional research/TTS/model packages and individual voice models retain their own licenses.
