@@ -1,0 +1,13 @@
+{
+  "title": "THE CHIP THAT CHANGED EVERYTHING",
+  "subtitle": "Why one company became the bottleneck for modern computing",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "beats": [
+    {"id":"b01","kind":"hook","text":"Almost every advanced chip on Earth passes through one extraordinary bottleneck.","seconds":4.0,"visual":"claim","emphasis":"high"},
+    {"id":"b02","kind":"context","text":"It is not a consumer brand. Most people have never heard of it.","seconds":3.2,"visual":"claim","emphasis":"normal"},
+    {"id":"b03","kind":"stat","text":"But its technology sits inside the supply chain of the world's most powerful computers.","seconds":4.0,"visual":"stat","emphasis":"high"},
+    {"id":"b04","kind":"turn","text":"That is what makes the semiconductor story so unusual: power is concentrated in places the public rarely sees.","seconds":5.0,"visual":"quote","emphasis":"normal"}
+  ]
+}
