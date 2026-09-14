@@ -20,9 +20,10 @@ export const StatVisual: React.FC<VisualBeat> = ({text,value=94,unit='%'}) => {
   const frame=useCurrentFrame(); const {fps}=useVideoConfig();
   const p=spring({frame,fps,config:{damping:180,stiffness:80}});
   const n=Math.round(interpolate(p,[0,1],[0,value]));
+  const progress=unit==='%' ? Math.min(100,n) : Math.min(100,n*10);
   return <Glass style={{padding:52,width:760}}>
     <div style={{fontSize:118,fontWeight:850,letterSpacing:-7}}>{n}<span style={{fontSize:54,marginLeft:10,opacity:.65}}>{unit}</span></div>
-    <div style={{height:8,background:'rgba(255,255,255,.1)',margin:'30px 0',borderRadius:8}}><div style={{height:'100%',width:`${Math.min(100,n)}%`,background:'white',borderRadius:8}} /></div>
+    <div style={{height:8,background:'rgba(255,255,255,.1)',margin:'30px 0',borderRadius:8}}><div style={{height:'100%',width:`${progress}%`,background:'white',borderRadius:8}} /></div>
     <div style={{fontSize:28,lineHeight:1.25,color:'rgba(255,255,255,.76)'}}>{text}</div>
   </Glass>;
 };
