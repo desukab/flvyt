@@ -65,3 +65,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - name: Run production acceptance
         run: python scripts/acceptance.py
+      - name: Upload acceptance video
+        uses: actions/upload-artifact@v4
+        with:
+          name: flvyt-production-acceptance
+          path: out/acceptance/acceptance.mp4
+          if-no-files-found: error
