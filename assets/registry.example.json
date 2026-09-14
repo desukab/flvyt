@@ -1,0 +1,14 @@
+{
+  "assets": [
+    {
+      "id": "example_factory",
+      "path": "assets/factory.jpg",
+      "kind": "image",
+      "tags": ["semiconductor", "factory", "manufacturing"],
+      "license": "owned",
+      "attribution": "",
+      "source": "",
+      "duration": 0
+    }
+  ]
+}
