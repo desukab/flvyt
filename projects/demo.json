@@ -1,13 +1,16 @@
 {
   "title": "THE CHIP THAT CHANGED EVERYTHING",
-  "subtitle": "Why one company became the bottleneck for modern computing",
+  "subtitle": "A procedural documentary about the hidden semiconductor supply chain",
   "fps": 30,
   "width": 1920,
   "height": 1080,
   "beats": [
-    {"id":"b01","kind":"hook","text":"Almost every advanced chip on Earth passes through one extraordinary bottleneck.","seconds":4.0,"visual":"claim","emphasis":"high"},
-    {"id":"b02","kind":"context","text":"It is not a consumer brand. Most people have never heard of it.","seconds":3.2,"visual":"claim","emphasis":"normal"},
-    {"id":"b03","kind":"stat","text":"But its technology sits inside the supply chain of the world's most powerful computers.","seconds":4.0,"visual":"stat","emphasis":"high"},
-    {"id":"b04","kind":"turn","text":"That is what makes the semiconductor story so unusual: power is concentrated in places the public rarely sees.","seconds":5.0,"visual":"quote","emphasis":"normal"}
+    {"id":"b01","kind":"hook","text":"Almost every advanced computer depends on a supply chain most people never see.","seconds":4.2,"visual":"claim","emphasis":"high","label":"THE HIDDEN SYSTEM"},
+    {"id":"b02","kind":"context","text":"The story is not just about the chip. It is about the specialized machines, factories and organizations behind it.","seconds":4.0,"visual":"broll","emphasis":"normal","label":"THE SUPPLY CHAIN"},
+    {"id":"b03","kind":"structure","text":"Think of the process as four linked stages: design, fabrication, packaging and distribution.","seconds":4.0,"visual":"stat","emphasis":"high","label":"FOUR STAGES","value":4,"unit":"STAGES"},
+    {"id":"b04","kind":"geography","text":"Those stages are spread across countries, companies and facilities that depend on one another.","seconds":4.0,"visual":"map","emphasis":"normal","label":"A GLOBAL NETWORK"},
+    {"id":"b05","kind":"history","text":"The balance of power changed over decades as specialization made the industry faster, more capable and more concentrated.","seconds":4.5,"visual":"timeline","emphasis":"normal","label":"DECADES OF SPECIALIZATION"},
+    {"id":"b06","kind":"turn","text":"That concentration is the real story: a disruption in one obscure part of the chain can ripple through the entire technology economy.","seconds":4.6,"visual":"quote","emphasis":"high","label":"THE BOTTLENECK"},
+    {"id":"b07","kind":"thesis","text":"This is how a component most people never notice can become one of the most strategically important systems on Earth.","seconds":4.4,"visual":"claim","emphasis":"high","label":"THE THESIS"}
   ]
 }
