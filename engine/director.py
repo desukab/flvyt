@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from .project import Beat, Project
+from .editorial import add_shots
 
 # Documentary editing grammar. Deterministic by design: the same script produces
 # a repeatable visual plan, making automated rendering debuggable.
@@ -30,5 +31,7 @@ def direct(project: Project) -> Project:
             seconds=seconds, visual=visual, emphasis=beat.emphasis,
             assetSrc=beat.assetSrc, label=beat.label, value=beat.value,
             unit=beat.unit, narration=beat.narration, sources=list(beat.sources),
+            shots=list(beat.shots),
         ))
+    add_shots(planned)
     return Project(project.title, project.subtitle, project.fps, project.width, project.height, planned)
