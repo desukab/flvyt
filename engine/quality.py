@@ -19,23 +19,37 @@ def _gate():
 
 
 def probe(path: str | Path) -> dict:
-    """Basic deterministic delivery QA using ffprobe."""
+    """Deterministic delivery QA using ffprobe."""
     p = Path(path)
     if not p.exists():
         return _gate()([f"missing output: {p}"])
-    cmd = ["ffprobe", "-v", "error", "-show_streams", "-show_format", "-of", "json", str(p)]
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    result = subprocess.run([
+        "ffprobe", "-v", "error", "-show_streams", "-show_format", "-of", "json", str(p)
+    ], capture_output=True, text=True)
     if result.returncode != 0:
         return _gate()(["ffprobe failed: " + result.stderr[-500:]])
     data = json.loads(result.stdout)
     streams = data.get("streams", [])
     video = [s for s in streams if s.get("codec_type") == "video"]
     audio = [s for s in streams if s.get("codec_type") == "audio"]
-    fails = []
+    fmt = data.get("format", {})
+    fails: list[str] = []
+    warns: list[str] = []
     if not video:
         fails.append("no video stream")
     if not audio:
         fails.append("no audio stream")
-    if video and (video[0].get("width", 0) < 1280 or video[0].get("height", 0) < 720):
-        fails.append("video resolution below 1280x720")
-    return _gate()(fails, format=data.get("format", {}).get("format_name"))
+    if video:
+        if video[0].get("width", 0) < 1280 or video[0].get("height", 0) < 720:
+            fails.append("video resolution below 1280x720")
+        duration = float(fmt.get("duration", 0) or 0)
+        if duration < 5:
+            fails.append("video is shorter than 5 seconds")
+        if video[0].get("codec_name") not in {"h264", "hevc", "vp9", "av1"}:
+            warns.append(f"unusual video codec: {video[0].get('codec_name')}")
+    if audio:
+        if int(audio[0].get("sample_rate", 0) or 0) < 44100:
+            warns.append("audio sample rate below 44.1 kHz")
+        if audio[0].get("channels", 0) < 2:
+            warns.append("audio is mono")
+    return _gate()(fails, warns=warns, format=fmt.get("format_name"), duration=fmt.get("duration"))
