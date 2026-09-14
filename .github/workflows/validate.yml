@@ -47,3 +47,21 @@ jobs:
         run: python scripts/render.py projects/demo.json --out out/ci-smoke.mp4
       - name: Inspect output
         run: ffprobe -v error -show_entries format=duration -show_streams -of json out/ci-smoke.mp4
+
+  production-acceptance:
+    runs-on: ubuntu-latest
+    needs: [python, remotion]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Node dependencies
+        run: npm install
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Run production acceptance
+        run: python scripts/acceptance.py
