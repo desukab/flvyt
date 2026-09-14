@@ -1,0 +1,3 @@
+# FLVYT core intentionally uses the Python standard library.
+# Optional upstream media helpers are vendored by scripts/bootstrap_upstream.py
+# and may require the upstream project's media dependencies.
