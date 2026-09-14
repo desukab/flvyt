@@ -1,0 +1,22 @@
+{
+  "name": "flvyt",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Automated faceless technology documentary video engine",
+  "scripts": {
+    "start": "remotion studio remotion/src/index.tsx",
+    "render": "remotion render remotion/src/index.tsx Documentary out/demo.mp4",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.524",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "remotion": "4.0.524"
+  },
+  "devDependencies": {
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.7",
+    "typescript": "5.9.2"
+  }
+}
