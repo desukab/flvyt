@@ -29,6 +29,6 @@ def direct(project: Project) -> Project:
             id=beat.id or f"beat_{i+1:03d}", kind=beat.kind, text=beat.text,
             seconds=seconds, visual=visual, emphasis=beat.emphasis,
             assetSrc=beat.assetSrc, label=beat.label, value=beat.value,
-            unit=beat.unit, narration=beat.narration,
+            unit=beat.unit, narration=beat.narration, sources=list(beat.sources),
         ))
     return Project(project.title, project.subtitle, project.fps, project.width, project.height, planned)
