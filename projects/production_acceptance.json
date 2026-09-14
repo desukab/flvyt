@@ -1,0 +1,14 @@
+{
+  "title": "How TSMC Became Indispensable to Advanced Computing",
+  "subtitle": "A production acceptance project for FLVYT",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "beats": [
+    {"id":"hook","kind":"claim","text":"The world's most advanced chips depend on a company most consumers have never heard of.","seconds":4.0,"visual":"claim","emphasis":"high","sources":["https://www.tsmc.com/english/aboutTSMC/company_profile"]},
+    {"id":"context","kind":"claim","text":"TSMC built its business around manufacturing chips designed by other companies.","seconds":4.0,"visual":"company","emphasis":"normal","sources":["https://www.tsmc.com/english/aboutTSMC/company_profile"]},
+    {"id":"scale","kind":"stat","text":"Advanced semiconductor manufacturing is extraordinarily capital intensive.","seconds":4.0,"visual":"stat","emphasis":"high","label":"FAB SCALE","value":1,"unit":"global manufacturing model","sources":["https://www.tsmc.com/english/aboutTSMC/company_profile"]},
+    {"id":"thesis","kind":"claim","text":"That manufacturing specialization became a critical link between chip designers and the devices built around them.","seconds":4.5,"visual":"timeline","emphasis":"normal","sources":["https://www.tsmc.com/english/aboutTSMC/company_profile"]},
+    {"id":"close","kind":"claim","text":"FLVYT acceptance gate: every scene must remain grounded, timed to narration, rendered and technically validated.","seconds":4.0,"visual":"claim","emphasis":"high","sources":[]}
+  ]
+}
