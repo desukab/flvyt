@@ -44,7 +44,7 @@ The target is a serious faceless technology channel: controlled pacing, visual h
 
 ## One-command production build
 
-Requirements: Node 20+, Python 3.10+, FFmpeg. For the fully automated local workflow, install the optional research/transcription dependencies and run a local TTS engine and Ollama-compatible model.
+Requirements: Python 3.10+, Node 20+, FFmpeg (with `ffprobe`). For the fully automated local workflow, install the optional research/transcription dependencies and run a local TTS engine and Ollama-compatible model.
 
 ```bash
 npm install
@@ -53,18 +53,37 @@ python -m pip install -r requirements-research.txt
 python -m pip install -r requirements-local.txt
 python -m compileall engine scripts
 npm run typecheck
+flvyt doctor   # see exactly which local tools are present vs missing
 ```
+
+### The `flvyt` CLI
+
+A single entry point drives the whole local pipeline and checks the environment:
+
+```bash
+flvyt "How TSMC became indispensable to advanced computing"   # research → MP4
+flvyt build projects/evidence.example.json                     # verified pack → MP4
+flvyt plan projects/evidence.example.json                      # evidence → beats
+flvyt render projects/generated.json                           # beats → MP4
+flvyt ingest intro "public/intro.mp4"                          # add a licensed asset
+flvyt doctor                                                   # preflight tools
+```
+
+`flvyt <topic>` runs research, source-grounded evidence, story planning, asset matching (when a registry exists), narration, narration-driven timing, captions (when available), Remotion rendering and delivery QA. It stops with a clear message rather than fabricating facts when a required optional stage (for example the local grounding model) is missing.
 
 ### From a topic to a video
 
-1. Collect candidate sources:
+1. Collect candidate sources and ground them through a local model in one step:
 
 ```bash
-python scripts/research.py "How TSMC became indispensable to advanced computing" \
-  --out projects/research.json
+export FLVYT_TTS_COMMAND='piper --model {model} --output_file {output}'
+export FLVYT_TTS_MODEL=/path/to/voice.onnx
+flvyt "How TSMC became indispensable to advanced computing"
 ```
 
-2. Put the research through a local source-grounding model and build the documentary automatically:
+The local grounding gate refuses evidence items whose source URL was not present in the collected research and refuses evidence without a supporting quote. The resulting evidence should still be reviewed before publishing.
+
+The pipeline is also available directly through `scripts/build.py`, which accepts a research pack, an evidence pack or a ready project, with the same flags:
 
 ```bash
 python scripts/build.py projects/research.json \
@@ -73,7 +92,7 @@ python scripts/build.py projects/research.json \
   --out out/final.mp4
 ```
 
-The local grounding gate refuses evidence items whose source URL was not present in the collected research and refuses evidence without a supporting quote. The resulting evidence should still be reviewed before publishing.
+The `flvyt` topic form reads those TTS settings from `FLVYT_TTS_COMMAND` / `FLVYT_TTS_MODEL`, so the command stays a single topic word (see the first example above).
 
 ### From an already verified evidence pack
 
@@ -91,6 +110,23 @@ python scripts/build.py projects/evidence.example.json --out out/final.mp4
 ```
 
 The build performs story planning, asset matching when a registry is supplied, TTS synthesis, narration-driven beat timing, local transcription, captions, Remotion rendering, FFmpeg audio processing and delivery QA.
+
+## Local dependencies
+
+Everything runs locally. `flvyt doctor` prints a live checklist; `required` tools are mandatory, `optional` tools upgrade specific stages when installed. Never fabricate a fact to paper over a missing tool — the pipeline stops and tells you what to install.
+
+| Tool | Required | Powers |
+| --- | --- | --- |
+| Python 3.10+ | yes | all editorial, audio, captioning and QA logic (stdlib-only core) |
+| Node 20+ / npm | yes | Remotion 4 rendering of motion graphics |
+| FFmpeg + ffprobe | yes | narration assembly, mixing, silent track fallback, delivery mux, QA |
+| `ddgs` + `trafilatura` | no | no-key web source discovery and readable extraction (`requirements-research.txt`) |
+| Ollama-compatible local LLM | no | source-grounding gate that turns research into evidence packs |
+| local TTS executable | no | narration synthesis (any command accepting `{model}`/`{output}`) |
+| faster-whisper | no | local word-timed transcription for automatic captions (`requirements-local.txt`) |
+| asset registry | no | license-cleared B-roll selection; procedural visuals render without it |
+
+Environment variables: `FLVYT_LLM_MODEL` / `FLVYT_LLM_ENDPOINT` (grounding, default `llama3.2` at Ollama's `api/generate`), `FLVYT_TTS_COMMAND` / `FLVYT_TTS_MODEL` (narration), `FLVYT_WHISPER_MODEL` (captions, default `small`).
 
 ## Evidence format
 
