@@ -17,6 +17,8 @@ class Beat:
     visual: str = "title"
     emphasis: str = "normal"
     assetSrc: str | None = None
+    assetConfidence: float | None = None
+    assetReason: str | None = None
     label: str | None = None
     value: float | None = None
     unit: str | None = None

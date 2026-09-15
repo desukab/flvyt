@@ -9,6 +9,7 @@ from .transitions import assign_transitions
 VISUALS = {
     "claim": ("text", 3.2),
     "stat": ("counter", 2.8),
+    "chart": ("chart", 4.0),
     "person": ("portrait", 3.5),
     "company": ("logo", 3.0),
     "map": ("map", 4.0),
@@ -30,7 +31,8 @@ def direct(project: Project) -> Project:
         planned.append(Beat(
             id=beat.id or f"beat_{i+1:03d}", kind=beat.kind, text=beat.text,
             seconds=seconds, visual=visual, emphasis=beat.emphasis,
-            assetSrc=beat.assetSrc, label=beat.label, value=beat.value,
+            assetSrc=beat.assetSrc, assetConfidence=beat.assetConfidence,
+            assetReason=beat.assetReason, label=beat.label, value=beat.value,
             unit=beat.unit, narration=beat.narration, sources=list(beat.sources),
             shots=list(beat.shots),
         ))

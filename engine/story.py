@@ -51,7 +51,9 @@ def _visual_for_evidence(ev: Evidence) -> str:
         return "map"
     if "timeline" in tags:
         return "timeline"
-    if "stat" in tags or "chart" in tags:
+    if "chart" in tags:
+        return "chart"
+    if "stat" in tags:
         return "stat"
     if "portrait" in tags or "person" in tags:
         return "portrait"

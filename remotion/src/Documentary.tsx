@@ -99,7 +99,7 @@ const ShotContent: React.FC<{
         <div style={{fontSize: 20, letterSpacing: 5, color: 'rgba(255,255,255,.48)'}}>{String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</div>
         <div style={{fontSize: 20, letterSpacing: 4, color: 'rgba(255,255,255,.42)', textTransform: 'uppercase'}}>{beat.label || shot.visual}</div>
       </div>
-      <AbsoluteFill style={{display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `translateX(${x}px) scale(${shot.mode === 'punch' ? 1.035 : 1})`}}>
+      <AbsoluteFill style={{display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `translateX(${x}px)`}}>
         <Visual {...beat} visual={shot.visual} text={shot.text} />
       </AbsoluteFill>
       <div style={{position: 'absolute', left: 80, right: 80, bottom: 35, height: 2, background: 'rgba(255,255,255,.12)'}}>
