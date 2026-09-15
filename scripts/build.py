@@ -11,7 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from engine.asset_director import assign_assets
-from engine.audio import concat_wavs
+from engine.audio import assemble_narration, concat_wavs
 from engine.editorial import add_shots
 from engine.editorial_gate import raise_if_invalid
 from engine.project import Project
@@ -81,9 +81,9 @@ if args.tts_command:
         # TTS is the master clock: regenerate shots from the new beat durations.
         refresh_editorial_plan(project)
         manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
-        ordered = [Path(manifest_data[b["id"]]) for b in Project.load(project).props()["beats"] if b["id"] in manifest_data]
-        if ordered:
-            concat_wavs(ordered, ROOT / "out/narration/master.wav")
+        beats_data = json.loads(project.read_text(encoding="utf-8"))["beats"]
+        if any(b["id"] in manifest_data for b in beats_data):
+            assemble_narration(beats_data, manifest_data, ROOT / "out/narration/master.wav", cwd=ROOT)
 
 transcript = None
 if args.tts_command and not args.no_auto_captions:

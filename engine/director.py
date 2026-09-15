@@ -34,7 +34,7 @@ def direct(project: Project) -> Project:
             assetSrc=beat.assetSrc, assetConfidence=beat.assetConfidence,
             assetReason=beat.assetReason, label=beat.label, value=beat.value,
             unit=beat.unit, narration=beat.narration, sources=list(beat.sources),
-            shots=list(beat.shots),
+            shots=list(beat.shots), pad_after=beat.pad_after,
         ))
     add_shots(planned)
     assign_transitions(planned)

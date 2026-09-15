@@ -25,6 +25,7 @@ class Beat:
     narration: str | None = None
     sources: list[str] = field(default_factory=list)
     shots: list[dict[str, Any]] = field(default_factory=list)
+    pad_after: float = 0.0
 
 
 @dataclass

@@ -10,7 +10,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from engine.audio import concat_wavs, mix
+from engine.audio import assemble_narration, mix
 from engine.director import direct
 from engine.project import Project
 from engine.quality import probe
@@ -62,9 +62,10 @@ def _find_narration(project_path: Path, root: Path) -> Path | None:
     manifest = root / "out/narration/tts_manifest.json"
     if manifest.exists():
         data = json.loads(manifest.read_text(encoding="utf-8"))
-        ordered = [Path(data[b["id"]]) for b in Project.load(project_path).props()["beats"] if b["id"] in data]
-        if ordered:
-            return concat_wavs(ordered, root / "out/narration/master.wav")
+        project = Project.load(project_path)
+        beats_data = [b for b in project.props()["beats"] if str(b["id"]) in data]
+        if beats_data:
+            return assemble_narration(beats_data, data, root / "out/narration/master.wav", cwd=root)
     for path in candidates:
         if path.exists():
             return path
