@@ -152,7 +152,7 @@ def produce(source: str | None = None, *, topic: str | None = None,
                    path=Path(state_file) if state_file else STATE_FILE)
 
     def run_stage(stage: str, cmd: list[str], inputs: list[Path], output: str,
-                  *, work: Callable[[], None] | None = None) -> bool:
+                 *, work: Callable[[], None] | None = None) -> bool:
         """Run once unless already completed with identical inputs; skip then."""
         fingerprint = _fingerprint(stage, cmd, inputs)
         if state.should_skip(stage, fingerprint, output):
@@ -161,7 +161,8 @@ def produce(source: str | None = None, *, topic: str | None = None,
         try:
             if work is not None:
                 work()
-            _run(cmd, stage=stage)
+            if not cmd or cmd[0] != "in-process":
+                _run(cmd, stage=stage)
         except StageFailed as exc:
             exc.stage = exc.stage or stage
             exc.report = {"steps": steps, "out": out,

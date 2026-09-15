@@ -126,3 +126,37 @@ jobs:
           name: flvyt-cables-longform
           path: out/acceptance/cables.mp4
           if-no-files-found: error
+
+  fresh-topic-acceptance:
+    runs-on: ubuntu-latest
+    needs: [python, remotion]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg espeak-ng
+      - name: Install Python research + core dependencies
+        run: pip install -r requirements-research.txt
+      - name: Install Node dependencies
+        run: npm install
+      - name: Run full fresh-topic pipeline
+        run: >-
+          python scripts/build.py
+          --topic "The Hidden Infrastructure Behind GPS"
+          --tts-command "espeak-ng -w {output}"
+          --no-auto-captions
+          --out out/acceptance/gps-fresh.mp4
+      - name: Inspect output
+        run: ffprobe -v error -show_entries format=duration,bit_rate -show_entries stream=codec_name,width,height,sample_rate -of json out/acceptance/gps-fresh.mp4
+      - name: Upload fresh-topic video
+        uses: actions/upload-artifact@v5
+        with:
+          name: flvyt-fresh-topic
+          path: out/acceptance/gps-fresh.mp4
+          if-no-files-found: error

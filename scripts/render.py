@@ -46,6 +46,16 @@ def probe_duration(path: Path) -> float:
     return float(r.stdout.strip() or 0)
 
 
+def _project_provenance(project_path: Path) -> dict | None:
+    """Grounding provenance carried from the plan into the manifest, if any."""
+    try:
+        raw = json.loads(Path(project_path).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    provenance = raw.get("provenance")
+    return provenance if isinstance(provenance, dict) else None
+
+
 def _mux_srt(video: Path, srt: Path, out: Path) -> None:
     subprocess.run([
         "ffmpeg", "-v", "error", "-y", "-i", str(video), "-i", str(srt),
@@ -161,6 +171,7 @@ def main() -> int:
         root=ROOT,
         narration=narration_info,
         captions=caption_info,
+        assets={"evidence": _project_provenance(project_path)},
         render={
             "fps": project.fps, "width": project.width, "height": project.height,
             "frames": frames, "out": str(out),
