@@ -165,7 +165,9 @@ def main() -> int:
     qa_out = ROOT / "out/qa.json"
     qa_out.parent.mkdir(parents=True, exist_ok=True)
     qa_out.write_text(json.dumps(
-        {"ffprobe": report, "signalstats": frame_report}, indent=2, ensure_ascii=False), encoding="utf-8")
+        {"ok": bool(report.get("ok") and editorial_qa.get("ok") and frame_report.get("ok")),
+         "ffprobe": report, "signalstats": frame_report},
+        indent=2, ensure_ascii=False), encoding="utf-8")
     write_manifest(
         project_path, ROOT / "out/manifest.json", report, editorial_qa,
         root=ROOT,
