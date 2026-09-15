@@ -13,7 +13,7 @@ sys.path.insert(0, str(ROOT))
 from engine.audio import assemble_narration, mix
 from engine.director import direct
 from engine.project import Project
-from engine.quality import probe
+from engine.quality import probe, probe_frames
 from engine.captions import words_to_srt
 from engine.editorial_quality import report_to_path as editorial_report_to_path
 from engine.manifest import write_manifest
@@ -149,9 +149,13 @@ def main() -> int:
 
     report = probe(out)
     print(json.dumps(report, indent=2))
+    frame_report = probe_frames(out)
+    print("Frame QA:", json.dumps(
+        {"ok": frame_report["ok"], "fails": frame_report["fails"]}))
     qa_out = ROOT / "out/qa.json"
     qa_out.parent.mkdir(parents=True, exist_ok=True)
-    qa_out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    qa_out.write_text(json.dumps(
+        {"ffprobe": report, "signalstats": frame_report}, indent=2, ensure_ascii=False), encoding="utf-8")
     write_manifest(
         project_path, ROOT / "out/manifest.json", report, editorial_qa,
         root=ROOT,
@@ -161,11 +165,14 @@ def main() -> int:
             "fps": project.fps, "width": project.width, "height": project.height,
             "frames": frames, "out": str(out),
         },
+        frameqa=frame_report,
     )
     if not report.get("ok"):
         raise SystemExit("FLVYT delivery QA failed")
     if not editorial_qa.get("ok"):
         raise SystemExit("FLVYT editorial quality QA failed")
+    if not frame_report.get("ok"):
+        raise SystemExit("FLVYT frame-level QA failed")
     print(f"Rendered and QA-passed: {out}")
     return 0
 
