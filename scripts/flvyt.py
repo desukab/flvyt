@@ -25,12 +25,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from engine.pipeline import produce
+from engine.pipeline import produce, StageFailed
 
 COMMANDS = {"build", "plan", "render", "ingest", "doctor"}
 PRODUCTION_FLAGS = {
     "--out", "--music", "--assets", "--max-results", "--captions-model",
-    "--ground-model", "--ground-endpoint", "--no-auto-captions",
+    "--ground-model", "--ground-endpoint", "--no-auto-captions", "--force",
 }
 
 
@@ -75,6 +75,8 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--ground-endpoint", default=os.environ.get("FLVYT_LLM_ENDPOINT",
                                                                "http://127.0.0.1:11434/api/generate"))
     p.add_argument("--no-auto-captions", action="store_true")
+    p.add_argument("--force", action="store_true",
+                   help="Re-run every stage, ignoring the resume state file")
     return p
 
 
@@ -88,20 +90,31 @@ def _build(target: str, flags: list[str]) -> int:
     if not Path(target).exists() and not path.exists():
         topic = target
     source = None if topic else str(path if path.exists() else target)
-    report = produce(
-        source,
-        topic=topic,
-        out=ns.out,
-        tts_command=ns.tts_command,
-        tts_model=ns.tts_model,
-        music=ns.music,
-        assets=ns.assets,
-        max_results=ns.max_results,
-        captions_model=ns.captions_model,
-        ground_model=ns.ground_model,
-        ground_endpoint=ns.ground_endpoint,
-        auto_captions=not ns.no_auto_captions,
-    )
+    try:
+        report = produce(
+            source,
+            topic=topic,
+            out=ns.out,
+            tts_command=ns.tts_command,
+            tts_model=ns.tts_model,
+            music=ns.music,
+            assets=ns.assets,
+            max_results=ns.max_results,
+            captions_model=ns.captions_model,
+            ground_model=ns.ground_model,
+            ground_endpoint=ns.ground_endpoint,
+            auto_captions=not ns.no_auto_captions,
+            force=ns.force,
+        )
+    except StageFailed as exc:
+        failure = (exc.report or {}).get("failure", {})
+        print()
+        print(f"FLVYT stage '{failure.get('step', exc.stage)}' failed:")
+        print("  command:", failure.get("command") or " ".join(exc.cmd))
+        if exc.output:
+            print("  output: " + exc.output.replace("\n", "\n          "))
+        print("  " + failure.get("resume", "re-run the same build command"))
+        return 1
     print("stages:", " -> ".join(s["step"] for s in report["steps"]))
     print(f"FLVYT production build {'OK' if report['qa'].get('ok') else 'FAILED'}: {report['out']}")
     return 0 if report["qa"].get("ok") else 1
