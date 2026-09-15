@@ -38,9 +38,11 @@ The target is a serious faceless technology channel: controlled pacing, visual h
 - **Remotion 4.0.524** — programmatic React video rendering and motion graphics.
 - **FFmpeg** — local audio/video processing and final delivery.
 - **faster-whisper (optional/local)** — word and segment timestamps for automatic captions.
-- **Piper or another locally installed TTS engine** — local narration with no paid API requirement.
+- **Piper, espeak-ng or another locally installed TTS engine** — local narration with no paid API requirement.
 - **ddgs + Trafilatura (optional/local)** — no-key web discovery and readable source extraction.
 - **Ollama-compatible local LLM (optional/local)** — source-grounded evidence generation without a paid API.
+
+Every tool is checked by description, not assumption: `flvyt doctor` reports each one as `REQUIRED`/`OPTIONAL` with a `CONFIGURED`/`MISSING` status, the pipeline stage it powers, and an exact install hint when a required tool is absent. Runs entirely locally; Termux on-device is fully supported for everything except the two Linux-host stages (Remotion rendering and faster-whisper transcription), for which the doctor and docs point at the standard GitHub-Actions Ubuntu pipeline.
 
 ## One-command production build
 
@@ -71,6 +73,8 @@ flvyt doctor                                                   # preflight tools
 
 `flvyt <topic>` runs research, source-grounded evidence, story planning, asset matching (when a registry exists), narration, narration-driven timing, captions (when available), Remotion rendering and delivery QA. It stops with a clear message rather than fabricating facts when a required optional stage (for example the local grounding model) is missing.
 
+Builds are **resumable**. Completed stages are recorded in `out/pipeline_state.json` keyed by output path and fingerprinted by stage + command + input contents; re-running the same build skips every stage that finished unchanged, and `--force` re-runs everything from scratch. When a stage fails, FLVYT prints the exact failing command, its captured output and the resume invocation, so a transient network or tool failure is a one-command recovery.
+
 ### From a topic to a video
 
 1. Collect candidate sources and ground them through a local model in one step:
@@ -93,6 +97,15 @@ python scripts/build.py projects/research.json \
 ```
 
 The `flvyt` topic form reads those TTS settings from `FLVYT_TTS_COMMAND` / `FLVYT_TTS_MODEL`, so the command stays a single topic word (see the first example above).
+
+On Termux, the same one-liner with espeak-ng produces real narration locally:
+
+```bash
+export FLVYT_TTS_COMMAND='espeak-ng -w {output}'
+flvyt "How TSMC became indispensable to advanced computing"
+```
+
+Use `--force` to bypass the resume cache and run every stage, and simply re-run the printed build command to recover from any failed stage.
 
 ### From an already verified evidence pack
 
@@ -122,7 +135,7 @@ Everything runs locally. `flvyt doctor` prints a live checklist; `required` tool
 | FFmpeg + ffprobe | yes | narration assembly, mixing, silent track fallback, delivery mux, QA |
 | `ddgs` + `trafilatura` | no | no-key web source discovery and readable extraction (`requirements-research.txt`) |
 | Ollama-compatible local LLM | no | source-grounding gate that turns research into evidence packs |
-| local TTS executable | no | narration synthesis (any command accepting `{model}`/`{output}`) |
+| local TTS executable | no | narration synthesis (any command accepting `{model}`/`{output}` — e.g. `espeak-ng -w {output}` on Termux) |
 | faster-whisper | no | local word-timed transcription for automatic captions (`requirements-local.txt`) |
 | asset registry | no | license-cleared B-roll selection; procedural visuals render without it |
 
@@ -190,7 +203,20 @@ npm run typecheck
 npm run python-check
 ```
 
-`scripts/acceptance.py` is the deterministic full-pipeline render gate: it generates per-beat narration with FFmpeg tones, retranscribes nothing, renders with the real Remotion composition, muxes audio and runs delivery QA. The `longform-acceptance` job additionally renders `projects/tsmc.generated.json`, a verified 3-minute-plus documentary fixture built from `projects/evidence.tsmc.json`, and uploads the resulting MP4 as a CI artifact. The evidence pack names only source pages (TSMC corporate pages and its authoritative Wikipedia article) and every claim is slotted into a narrative chapter; tests pin the runtime to the 3–5 minute window and re-validate the editorial gate on every push.
+`scripts/acceptance.py` is the deterministic full-pipeline render gate: it generates per-beat narration with FFmpeg tones, retranscribes nothing, renders with the real Remotion composition, muxes audio and runs delivery QA. Two verified long-form fixtures are rendered in CI and uploaded as artifacts:
+
+- `longform-acceptance` renders `projects/tsmc.generated.json`, a verified 3-minute-plus documentary built from `projects/evidence.tsmc.json` (TSMC corporate pages and its authoritative Wikipedia article, slotted into six narrative chapters). Tests pin the runtime window and re-validate the editorial gate on every push.
+- `cables-acceptance` renders `projects/cables.generated.json`, a ~8-minute documentary built from `projects/evidence.cables.json`, a 57-item chaptered pack citing the live Wikipedia "Submarine communications cable" article. Tests pin it to a 5–8 minute window, enforce the verified single-source URL, and re-validate the editorial gate.
+
+Every render runs three QA layers that must all pass for the build to succeed: **editorial** (readability density, visual-run variety, near-duplicate detection, chapter rhythm), **frame** (one-per-second `signalstats` luma sampling rejects a void or underfilled picture without false-flagging the deliberately dark documentary aesthetic), and **delivery** (ffprobe container/stream integrity).
+
+```bash
+npm run test        # full Python suite (128 tests, incl. fixture + frame QA guards)
+npm run typecheck   # Remotion/TypeScript layer
+npm run python-check
+```
+
+On-device verification: `tests/test_local_espeak.py` synthesizes real narration through any local espeak binary over stdin, retimes the beats, assembles the narration master with FFmpeg and writes editorial QA + manifest — it runs on-device (Termux) and skips itself where no espeak binary exists.
 
 ## Licensing
 
