@@ -1,0 +1,709 @@
+{
+  "title": "THE HIDDEN WEB",
+  "thesis": "The data of the internet travels through cables lying on the seabed — a network laid over 170 years, still at the mercy of nets, anchors, whales, and the rivalries of nations.",
+  "evidence": [
+    {
+      "claim": "Submarine cables carry 99 percent of the data traffic that crosses the world's oceans.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "high",
+      "tags": [
+        "stat"
+      ],
+      "id": "c01",
+      "slot": 1,
+      "chapter": 1,
+      "chapter_title": "The Invisible Library"
+    },
+    {
+      "claim": "A submarine cable moves data in the terabits per second, while a satellite typically offers about one gigabit per second: a ratio of more than 1000 to 1.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "high",
+      "tags": [
+        "chart",
+        "stat"
+      ],
+      "id": "c02",
+      "slot": 2,
+      "chapter": 1,
+      "chapter_title": "The Invisible Library"
+    },
+    {
+      "claim": "Satellites handle less than five percent of global data transmission, a share some estimates put as low as 0.5 percent.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c03",
+      "slot": 3,
+      "chapter": 1,
+      "chapter_title": "The Invisible Library"
+    },
+    {
+      "claim": "Modern undersea cables are typically about 25 millimetres in diameter and weigh around 1.4 tonnes per kilometre in their deep-sea sections.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c04",
+      "slot": 4,
+      "chapter": 1,
+      "chapter_title": "The Invisible Library"
+    },
+    {
+      "claim": "Most cable routes run through deep water, where the seabed grants a measure of protection from fishing and storms.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "map",
+        "geography"
+      ],
+      "id": "c05",
+      "slot": 5,
+      "chapter": 1,
+      "chapter_title": "The Invisible Library"
+    },
+    {
+      "claim": "Antarctica is the only continent still without a submarine cable link, so its bases rely on satellite relays with limited capacity.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "map",
+        "geography"
+      ],
+      "id": "c06",
+      "slot": 6,
+      "chapter": 1,
+      "chapter_title": "The Invisible Library"
+    },
+    {
+      "claim": "An Antarctic fiber cable would have to survive minus 80 degrees Celsius and ice sheets moving up to 10 metres every year.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "geography"
+      ],
+      "id": "c07",
+      "slot": 7,
+      "chapter": 1,
+      "chapter_title": "The Invisible Library"
+    },
+    {
+      "claim": "Melting Arctic ice has opened routes for projects like Polar Express, spanning 12,650 kilometres, and Far North Fiber, spanning 14,500.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "map",
+        "geography",
+        "stat"
+      ],
+      "id": "c08",
+      "slot": 8,
+      "chapter": 1,
+      "chapter_title": "The Invisible Library"
+    },
+    {
+      "claim": "The internet relies on a web of cables whose exact positions are public knowledge.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c09",
+      "slot": 9,
+      "chapter": 1,
+      "chapter_title": "The Invisible Library"
+    },
+    {
+      "claim": "In 1842 Samuel Morse submerged a wire insulated with tarred hemp and India rubber in New York Harbor and telegraphed through it.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline"
+      ],
+      "id": "c10",
+      "slot": 10,
+      "chapter": 2,
+      "chapter_title": "The First Threads"
+    },
+    {
+      "claim": "The first transatlantic telegraph cable became operational on 16 August 1858, linking two continents for the first time in an instant.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline"
+      ],
+      "id": "c11",
+      "slot": 12,
+      "chapter": 2,
+      "chapter_title": "The First Threads"
+    },
+    {
+      "claim": "That first 1858 cable worked for only about a month before the technology of the day failed it.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c12",
+      "slot": 13,
+      "chapter": 2,
+      "chapter_title": "The First Threads"
+    },
+    {
+      "claim": "Attempts in 1865 and 1866 aboard the world's largest steamship, the SS Great Eastern, produced the first successful transatlantic cable.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline"
+      ],
+      "id": "c13",
+      "slot": 14,
+      "chapter": 2,
+      "chapter_title": "The First Threads"
+    },
+    {
+      "claim": "By 1872 every continent except Antarctica had been linked by submarine telecommunications cables.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline"
+      ],
+      "id": "c14",
+      "slot": 16,
+      "chapter": 2,
+      "chapter_title": "The First Threads"
+    },
+    {
+      "claim": "In 1896 the world had 30 cable-laying ships, and 24 of them were British.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c15",
+      "slot": 17,
+      "chapter": 2,
+      "chapter_title": "The First Threads"
+    },
+    {
+      "claim": "British companies owned two-thirds of the world's cables in 1892, and by 1923 their share was still 42.7 percent.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "chart",
+        "stat"
+      ],
+      "id": "c16",
+      "slot": 15,
+      "chapter": 2,
+      "chapter_title": "The First Threads"
+    },
+    {
+      "claim": "Britain's first act after declaring war on Germany in 1914 was to cut the five cables linking Germany with France, Spain and the Azores.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline"
+      ],
+      "id": "c17",
+      "slot": 18,
+      "chapter": 2,
+      "chapter_title": "The First Threads"
+    },
+    {
+      "claim": "The first trans-Pacific telegraph cables were completed in 1902 and 1903, linking the United States to Hawaii, Guam and the Philippines.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline",
+        "geography"
+      ],
+      "id": "c18",
+      "slot": 19,
+      "chapter": 2,
+      "chapter_title": "The First Threads"
+    },
+    {
+      "claim": "Early telegraph cables wrapped a copper core in gutta-percha, a natural polymer with almost ideal insulating properties.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c19",
+      "slot": 11,
+      "chapter": 2,
+      "chapter_title": "The First Threads"
+    },
+    {
+      "claim": "TAT-1, the first transatlantic telephone cable, was inaugurated on 25 September 1956 carrying 36 telephone channels.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "high",
+      "tags": [
+        "timeline",
+        "stat"
+      ],
+      "id": "c20",
+      "slot": 20,
+      "chapter": 3,
+      "chapter_title": "The Voice Cables"
+    },
+    {
+      "claim": "Early telephone repeaters were powered by high-voltage direct current sent down the cable's inner conductor.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c21",
+      "slot": 21,
+      "chapter": 3,
+      "chapter_title": "The Voice Cables"
+    },
+    {
+      "claim": "The first-generation cable repeaters remain among the most reliable vacuum tube amplifiers ever designed.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c22",
+      "slot": 23,
+      "chapter": 3,
+      "chapter_title": "The Voice Cables"
+    },
+    {
+      "claim": "Many 1960s coaxial cables are still usable but were abandoned because their capacity is too small to be commercially viable.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline"
+      ],
+      "id": "c23",
+      "slot": 24,
+      "chapter": 3,
+      "chapter_title": "The Voice Cables"
+    },
+    {
+      "claim": "TAT-8, the first fiber-optic transatlantic cable, went into operation in 1988 with two working fiber pairs and one backup.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline"
+      ],
+      "id": "c24",
+      "slot": 22,
+      "chapter": 3,
+      "chapter_title": "The Voice Cables"
+    },
+    {
+      "claim": "In 1942 submarine cable technology was adapted to create the world's first submarine oil pipeline, Operation Pluto.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline"
+      ],
+      "id": "c25",
+      "slot": 26,
+      "chapter": 3,
+      "chapter_title": "The Voice Cables"
+    },
+    {
+      "claim": "Cable capacity grew so large that satellites could no longer back it up, forcing nets to reroute around the seabed instead.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c26",
+      "slot": 25,
+      "chapter": 3,
+      "chapter_title": "The Voice Cables"
+    },
+    {
+      "claim": "Modern optical repeaters use erbium-doped fiber amplifiers, first installed in submarine cables in 1995.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c27",
+      "slot": 27,
+      "chapter": 4,
+      "chapter_title": "The Modern Web"
+    },
+    {
+      "claim": "Cable repeaters are powered by a constant direct current of 3,000 to 15,000 volts, feeding up to 16.5 kilowatts into the line.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c28",
+      "slot": 28,
+      "chapter": 4,
+      "chapter_title": "The Modern Web"
+    },
+    {
+      "claim": "The optical fiber in undersea cables is so clear that runs of more than 100 kilometres between repeaters are possible.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c29",
+      "slot": 29,
+      "chapter": 4,
+      "chapter_title": "The Modern Web"
+    },
+    {
+      "claim": "Unrepeated cables as long as 380 kilometres were in service by 2014, carrying their own pump light to remote amplifiers.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c30",
+      "slot": 30,
+      "chapter": 4,
+      "chapter_title": "The Modern Web"
+    },
+    {
+      "claim": "Wavelength-division multiplexing lets one fiber carry many laser channels at once, capped by the spacing and bandwidth of amplifiers.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c31",
+      "slot": 31,
+      "chapter": 4,
+      "chapter_title": "The Modern Web"
+    },
+    {
+      "claim": "Spatial-division multiplexing cables run at least 12 fiber pairs, and cables with up to 24 pairs have been deployed.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c32",
+      "slot": 32,
+      "chapter": 4,
+      "chapter_title": "The Modern Web"
+    },
+    {
+      "claim": "A 2012 trial carried error-free 100 gigabit-per-second signals across 6,000 kilometres of Atlantic route, and one cable can move tens of terabits per second.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c33",
+      "slot": 33,
+      "chapter": 4,
+      "chapter_title": "The Modern Web"
+    },
+    {
+      "claim": "Fastest transatlantic round-trip latency is under 60 milliseconds, close to the speed-of-light floor for an all-sea route.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat",
+        "geography"
+      ],
+      "id": "c34",
+      "slot": 34,
+      "chapter": 4,
+      "chapter_title": "The Modern Web"
+    },
+    {
+      "claim": "A typical multi-terabit, transoceanic cable system costs several hundred million dollars to construct.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c35",
+      "slot": 35,
+      "chapter": 4,
+      "chapter_title": "The Modern Web"
+    },
+    {
+      "claim": "A speculative rush poured more than 22 billion dollars into privately financed cables between 1999 and 2001, ending in bankruptcies like Global Crossing.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "chart",
+        "stat"
+      ],
+      "id": "c36",
+      "slot": 36,
+      "chapter": 4,
+      "chapter_title": "The Modern Web"
+    },
+    {
+      "claim": "Between 1998 and 2003 roughly 70 percent of undersea fiber-optic cable was laid in the Pacific.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "map",
+        "stat"
+      ],
+      "id": "c37",
+      "slot": 37,
+      "chapter": 4,
+      "chapter_title": "The Modern Web"
+    },
+    {
+      "claim": "In July 2009 a cable owned in part by African investors plugged East Africa into the wider internet, delayed a month by coastal piracy.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "map",
+        "timeline"
+      ],
+      "id": "c38",
+      "slot": 38,
+      "chapter": 4,
+      "chapter_title": "The Modern Web"
+    },
+    {
+      "claim": "Between 1959 and 1996, fewer than 9 percent of cable breaks in the Atlantic and Caribbean were caused by natural events.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c39",
+      "slot": 39,
+      "chapter": 5,
+      "chapter_title": "The Fragile Seafloor"
+    },
+    {
+      "claim": "Cable faults averaged 3.7 per 1,000 kilometres each year from 1959 to 1979, dropping to 0.44 per 1,000 kilometres after 1985.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "high",
+      "tags": [
+        "chart",
+        "stat"
+      ],
+      "id": "c40",
+      "slot": 40,
+      "chapter": 5,
+      "chapter_title": "The Fragile Seafloor"
+    },
+    {
+      "claim": "Widespread burial of cable beginning in 1980 cut the fault rate to a fraction of its earlier level.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c41",
+      "slot": 41,
+      "chapter": 5,
+      "chapter_title": "The Fragile Seafloor"
+    },
+    {
+      "claim": "Cable breaks remain routine, with more than 50 repairs a year in the Atlantic Ocean alone and serious failures in 2006, 2008, 2009 and 2011.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline",
+        "stat"
+      ],
+      "id": "c42",
+      "slot": 42,
+      "chapter": 5,
+      "chapter_title": "The Fragile Seafloor"
+    },
+    {
+      "claim": "Cables in waters shallower than 2,000 metres are now regularly buried against fishing nets and bottom trawling.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c43",
+      "slot": 43,
+      "chapter": 5,
+      "chapter_title": "The Fragile Seafloor"
+    },
+    {
+      "claim": "Fishing vessels are the leading cause of accidental damage to submarine communication cables.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c44",
+      "slot": 44,
+      "chapter": 5,
+      "chapter_title": "The Fragile Seafloor"
+    },
+    {
+      "claim": "In 1873 a whale damaged the Persian Gulf Cable between Karachi and Gwadar, tangling its tail in loops of cable and drowning.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c45",
+      "slot": 45,
+      "chapter": 5,
+      "chapter_title": "The Fragile Seafloor"
+    },
+    {
+      "claim": "Whale entanglement ruptured cables 16 times between 1877 and 1955, 13 of them involving sperm whales.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c46",
+      "slot": 46,
+      "chapter": 5,
+      "chapter_title": "The Fragile Seafloor"
+    },
+    {
+      "claim": "In 2013 three divers were arrested for severing the main cable linking Egypt with Europe, drastically cutting the country's internet speed.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline"
+      ],
+      "id": "c47",
+      "slot": 47,
+      "chapter": 5,
+      "chapter_title": "The Fragile Seafloor"
+    },
+    {
+      "claim": "The 2022 Tonga volcanic eruption cut the island's only cable, a break declared a national crisis that took weeks to repair.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "map",
+        "timeline"
+      ],
+      "id": "c48",
+      "slot": 48,
+      "chapter": 6,
+      "chapter_title": "The New Cold War"
+    },
+    {
+      "claim": "In February 1959, 12 breaks struck five American trans-Atlantic cables; a US naval vessel detained a Soviet trawler that had shadowed each of them.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline",
+        "claim"
+      ],
+      "id": "c49",
+      "slot": 49,
+      "chapter": 6,
+      "chapter_title": "The New Cold War"
+    },
+    {
+      "claim": "Two Baltic Sea cable breaks in November 2024 were called a hybrid action, because no one believed the anchors were accidental.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "high",
+      "tags": [
+        "map",
+        "claim"
+      ],
+      "id": "c50",
+      "slot": 50,
+      "chapter": 6,
+      "chapter_title": "The New Cold War"
+    },
+    {
+      "claim": "Russian fishing vessels were reported passing over a damaged submarine cable up to 20 times in 2022.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c51",
+      "slot": 51,
+      "chapter": 6,
+      "chapter_title": "The New Cold War"
+    },
+    {
+      "claim": "After the Nord Stream sabotage, NATO increased patrols and monitoring of undersea infrastructure.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "map",
+        "claim"
+      ],
+      "id": "c52",
+      "slot": 52,
+      "chapter": 6,
+      "chapter_title": "The New Cold War"
+    },
+    {
+      "claim": "China's Digital Silk Road funds cable projects through firms like HMN Technologies, which holds up to 10 percent of the global market.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat",
+        "claim"
+      ],
+      "id": "c53",
+      "slot": 53,
+      "chapter": 6,
+      "chapter_title": "The New Cold War"
+    },
+    {
+      "claim": "Chinese involvement in roughly a quarter of global submarine cables could let its networks reroute data and apply political pressure.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c54",
+      "slot": 54,
+      "chapter": 6,
+      "chapter_title": "The New Cold War"
+    },
+    {
+      "claim": "Submarine cables are governed by UNCLOS articles that protect laying and repair, yet key states such as the United States and Turkey have not ratified the treaty.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "claim"
+      ],
+      "id": "c55",
+      "slot": 55,
+      "chapter": 6,
+      "chapter_title": "The New Cold War"
+    },
+    {
+      "claim": "During the Cold War the US Navy and NSA tapped Soviet undersea lines in Operation Ivy Bells.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "timeline"
+      ],
+      "id": "c56",
+      "slot": 56,
+      "chapter": 6,
+      "chapter_title": "The New Cold War"
+    },
+    {
+      "claim": "Shore stations can now locate a cable break with spread-spectrum reflectometry, gathering a complete data set in 20 milliseconds.",
+      "source": "https://en.wikipedia.org/wiki/Submarine_communications_cable",
+      "importance": "normal",
+      "tags": [
+        "stat"
+      ],
+      "id": "c57",
+      "slot": 57,
+      "chapter": 6,
+      "chapter_title": "The New Cold War"
+    }
+  ]
+}

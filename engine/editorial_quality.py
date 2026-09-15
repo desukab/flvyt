@@ -50,8 +50,17 @@ def _load(path: str | Path) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+_STOP = frozenset({
+    "the", "and", "for", "was", "were", "with", "from", "that", "this",
+    "have", "been", "into", "over", "under", "other", "which", "such",
+    "these", "those", "than", "they", "their", "there", "each", "were",
+    "its", "are", "has", "had", "after", "before", "only", "first", "by",
+    "on", "of", "to", "in", "at", "as", "an", "it", "not", "or",
+})
+
+
 def _token_set(text: str) -> set[str]:
-    return {t for t in text.lower().split() if len(t) > 3}
+    return {t for t in text.lower().split() if len(t) >= 2 and t not in _STOP}
 
 
 def _overlap(a: str, b: str) -> float:
