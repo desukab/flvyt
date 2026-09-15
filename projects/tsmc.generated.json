@@ -108,6 +108,16 @@
       ]
     },
     {
+      "id": "sec02",
+      "kind": "section",
+      "text": "The Process Race",
+      "seconds": 3.0,
+      "visual": "chapter",
+      "emphasis": "normal",
+      "label": "PART 2",
+      "sources": []
+    },
+    {
       "id": "e08",
       "kind": "evidence",
       "text": "From 1994, TSMC grew revenue at a compound annual rate of about 17 percent for three decades.",
@@ -226,6 +236,16 @@
       "sources": [
         "https://en.wikipedia.org/wiki/TSMC"
       ]
+    },
+    {
+      "id": "sec03",
+      "kind": "section",
+      "text": "The Market",
+      "seconds": 3.0,
+      "visual": "chapter",
+      "emphasis": "normal",
+      "label": "PART 3",
+      "sources": []
     },
     {
       "id": "e18",
@@ -384,6 +404,16 @@
       ]
     },
     {
+      "id": "sec04",
+      "kind": "section",
+      "text": "Global Expansion",
+      "seconds": 3.0,
+      "visual": "chapter",
+      "emphasis": "normal",
+      "label": "PART 4",
+      "sources": []
+    },
+    {
       "id": "e31",
       "kind": "evidence",
       "text": "In 2020 TSMC announced a 12 billion US dollar fab in Phoenix, Arizona, at the time the most advanced fab in the United States.",
@@ -504,6 +534,16 @@
       ]
     },
     {
+      "id": "sec05",
+      "kind": "section",
+      "text": "One Island's Weight",
+      "seconds": 3.0,
+      "visual": "chapter",
+      "emphasis": "normal",
+      "label": "PART 5",
+      "sources": []
+    },
+    {
       "id": "e41",
       "kind": "evidence",
       "text": "Taiwan's integrated circuit exports reached 184 billion US dollars in 2022, nearly 25 percent of the island's GDP.",
@@ -586,6 +626,16 @@
       "sources": [
         "https://en.wikipedia.org/wiki/TSMC"
       ]
+    },
+    {
+      "id": "sec06",
+      "kind": "section",
+      "text": "The Price of the Future",
+      "seconds": 3.0,
+      "visual": "chapter",
+      "emphasis": "normal",
+      "label": "PART 6",
+      "sources": []
     },
     {
       "id": "e48",

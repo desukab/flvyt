@@ -9,7 +9,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 1,
-      "tags": ["timeline", "company"]
+      "tags": [
+        "timeline",
+        "company"
+      ],
+      "chapter": 1,
+      "chapter_title": "Foundations"
     },
     {
       "id": "e02",
@@ -18,7 +23,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 2,
-      "tags": ["company", "portrait"]
+      "tags": [
+        "company",
+        "portrait"
+      ],
+      "chapter": 1,
+      "chapter_title": "Foundations"
     },
     {
       "id": "e03",
@@ -27,7 +37,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 3,
-      "tags": ["company", "stat"]
+      "tags": [
+        "company",
+        "stat"
+      ],
+      "chapter": 1,
+      "chapter_title": "Foundations"
     },
     {
       "id": "e04",
@@ -36,7 +51,11 @@
       "source_type": "article",
       "importance": "high",
       "slot": 4,
-      "tags": ["company"]
+      "tags": [
+        "company"
+      ],
+      "chapter": 1,
+      "chapter_title": "Foundations"
     },
     {
       "id": "e05",
@@ -45,7 +64,11 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 5,
-      "tags": ["company"]
+      "tags": [
+        "company"
+      ],
+      "chapter": 1,
+      "chapter_title": "Foundations"
     },
     {
       "id": "e06",
@@ -54,7 +77,11 @@
       "source_type": "primary",
       "importance": "high",
       "slot": 6,
-      "tags": ["company"]
+      "tags": [
+        "company"
+      ],
+      "chapter": 1,
+      "chapter_title": "Foundations"
     },
     {
       "id": "e07",
@@ -63,7 +90,11 @@
       "source_type": "primary",
       "importance": "normal",
       "slot": 7,
-      "tags": ["geography"]
+      "tags": [
+        "geography"
+      ],
+      "chapter": 1,
+      "chapter_title": "Foundations"
     },
     {
       "id": "e08",
@@ -72,7 +103,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 8,
-      "tags": ["stat", "chart"]
+      "tags": [
+        "stat",
+        "chart"
+      ],
+      "chapter": 2,
+      "chapter_title": "The Process Race"
     },
     {
       "id": "e09",
@@ -81,7 +117,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 9,
-      "tags": ["timeline", "stat"]
+      "tags": [
+        "timeline",
+        "stat"
+      ],
+      "chapter": 2,
+      "chapter_title": "The Process Race"
     },
     {
       "id": "e10",
@@ -90,7 +131,11 @@
       "source_type": "article",
       "importance": "high",
       "slot": 10,
-      "tags": ["timeline"]
+      "tags": [
+        "timeline"
+      ],
+      "chapter": 2,
+      "chapter_title": "The Process Race"
     },
     {
       "id": "e11",
@@ -99,7 +144,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 11,
-      "tags": ["timeline", "stat"]
+      "tags": [
+        "timeline",
+        "stat"
+      ],
+      "chapter": 2,
+      "chapter_title": "The Process Race"
     },
     {
       "id": "e12",
@@ -108,7 +158,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 12,
-      "tags": ["timeline", "stat"]
+      "tags": [
+        "timeline",
+        "stat"
+      ],
+      "chapter": 2,
+      "chapter_title": "The Process Race"
     },
     {
       "id": "e13",
@@ -117,7 +172,11 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 13,
-      "tags": ["stat"]
+      "tags": [
+        "stat"
+      ],
+      "chapter": 2,
+      "chapter_title": "The Process Race"
     },
     {
       "id": "e14",
@@ -126,7 +185,11 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 14,
-      "tags": ["stat"]
+      "tags": [
+        "stat"
+      ],
+      "chapter": 2,
+      "chapter_title": "The Process Race"
     },
     {
       "id": "e15",
@@ -135,7 +198,11 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 15,
-      "tags": ["stat"]
+      "tags": [
+        "stat"
+      ],
+      "chapter": 2,
+      "chapter_title": "The Process Race"
     },
     {
       "id": "e16",
@@ -144,7 +211,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 16,
-      "tags": ["timeline", "stat"]
+      "tags": [
+        "timeline",
+        "stat"
+      ],
+      "chapter": 2,
+      "chapter_title": "The Process Race"
     },
     {
       "id": "e17",
@@ -153,7 +225,12 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 17,
-      "tags": ["timeline", "company"]
+      "tags": [
+        "timeline",
+        "company"
+      ],
+      "chapter": 2,
+      "chapter_title": "The Process Race"
     },
     {
       "id": "e18",
@@ -162,7 +239,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 18,
-      "tags": ["stat", "chart"]
+      "tags": [
+        "stat",
+        "chart"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e19",
@@ -171,7 +253,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 19,
-      "tags": ["stat", "chart"]
+      "tags": [
+        "stat",
+        "chart"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e20",
@@ -180,7 +267,11 @@
       "source_type": "article",
       "importance": "high",
       "slot": 20,
-      "tags": ["stat"]
+      "tags": [
+        "stat"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e21",
@@ -189,7 +280,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 21,
-      "tags": ["company", "stat"]
+      "tags": [
+        "company",
+        "stat"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e22",
@@ -198,7 +294,11 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 22,
-      "tags": ["company"]
+      "tags": [
+        "company"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e23",
@@ -207,7 +307,11 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 23,
-      "tags": ["company"]
+      "tags": [
+        "company"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e24",
@@ -216,7 +320,11 @@
       "source_type": "article",
       "importance": "high",
       "slot": 24,
-      "tags": ["stat"]
+      "tags": [
+        "stat"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e25",
@@ -225,7 +333,12 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 25,
-      "tags": ["stat", "chart"]
+      "tags": [
+        "stat",
+        "chart"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e26",
@@ -234,7 +347,11 @@
       "source_type": "article",
       "importance": "high",
       "slot": 26,
-      "tags": ["stat"]
+      "tags": [
+        "stat"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e27",
@@ -243,7 +360,11 @@
       "source_type": "article",
       "importance": "high",
       "slot": 27,
-      "tags": ["company"]
+      "tags": [
+        "company"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e28",
@@ -252,7 +373,13 @@
       "source_type": "article",
       "importance": "high",
       "slot": 28,
-      "tags": ["stat", "chart", "geography"]
+      "tags": [
+        "stat",
+        "chart",
+        "geography"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e29",
@@ -261,7 +388,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 29,
-      "tags": ["stat", "chart"]
+      "tags": [
+        "stat",
+        "chart"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e30",
@@ -270,7 +402,11 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 30,
-      "tags": ["stat"]
+      "tags": [
+        "stat"
+      ],
+      "chapter": 3,
+      "chapter_title": "The Market"
     },
     {
       "id": "e31",
@@ -279,7 +415,13 @@
       "source_type": "article",
       "importance": "high",
       "slot": 31,
-      "tags": ["geography", "stat", "map"]
+      "tags": [
+        "geography",
+        "stat",
+        "map"
+      ],
+      "chapter": 4,
+      "chapter_title": "Global Expansion"
     },
     {
       "id": "e32",
@@ -288,7 +430,13 @@
       "source_type": "article",
       "importance": "high",
       "slot": 32,
-      "tags": ["geography", "stat", "map"]
+      "tags": [
+        "geography",
+        "stat",
+        "map"
+      ],
+      "chapter": 4,
+      "chapter_title": "Global Expansion"
     },
     {
       "id": "e33",
@@ -297,7 +445,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 33,
-      "tags": ["geography", "stat"]
+      "tags": [
+        "geography",
+        "stat"
+      ],
+      "chapter": 4,
+      "chapter_title": "Global Expansion"
     },
     {
       "id": "e34",
@@ -306,7 +459,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 34,
-      "tags": ["geography", "stat"]
+      "tags": [
+        "geography",
+        "stat"
+      ],
+      "chapter": 4,
+      "chapter_title": "Global Expansion"
     },
     {
       "id": "e35",
@@ -315,7 +473,13 @@
       "source_type": "article",
       "importance": "high",
       "slot": 35,
-      "tags": ["geography", "stat", "map"]
+      "tags": [
+        "geography",
+        "stat",
+        "map"
+      ],
+      "chapter": 4,
+      "chapter_title": "Global Expansion"
     },
     {
       "id": "e36",
@@ -324,7 +488,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 36,
-      "tags": ["geography", "map"]
+      "tags": [
+        "geography",
+        "map"
+      ],
+      "chapter": 4,
+      "chapter_title": "Global Expansion"
     },
     {
       "id": "e37",
@@ -333,7 +502,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 37,
-      "tags": ["geography", "map"]
+      "tags": [
+        "geography",
+        "map"
+      ],
+      "chapter": 4,
+      "chapter_title": "Global Expansion"
     },
     {
       "id": "e38",
@@ -342,7 +516,13 @@
       "source_type": "article",
       "importance": "high",
       "slot": 38,
-      "tags": ["geography", "stat", "map"]
+      "tags": [
+        "geography",
+        "stat",
+        "map"
+      ],
+      "chapter": 4,
+      "chapter_title": "Global Expansion"
     },
     {
       "id": "e39",
@@ -351,7 +531,13 @@
       "source_type": "article",
       "importance": "high",
       "slot": 39,
-      "tags": ["geography", "stat", "map"]
+      "tags": [
+        "geography",
+        "stat",
+        "map"
+      ],
+      "chapter": 4,
+      "chapter_title": "Global Expansion"
     },
     {
       "id": "e40",
@@ -360,7 +546,11 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 40,
-      "tags": ["geography"]
+      "tags": [
+        "geography"
+      ],
+      "chapter": 4,
+      "chapter_title": "Global Expansion"
     },
     {
       "id": "e41",
@@ -369,7 +559,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 41,
-      "tags": ["stat", "geography"]
+      "tags": [
+        "stat",
+        "geography"
+      ],
+      "chapter": 5,
+      "chapter_title": "One Island's Weight"
     },
     {
       "id": "e42",
@@ -378,7 +573,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 42,
-      "tags": ["stat", "geography"]
+      "tags": [
+        "stat",
+        "geography"
+      ],
+      "chapter": 5,
+      "chapter_title": "One Island's Weight"
     },
     {
       "id": "e43",
@@ -387,7 +587,13 @@
       "source_type": "article",
       "importance": "high",
       "slot": 43,
-      "tags": ["geography", "stat", "map"]
+      "tags": [
+        "geography",
+        "stat",
+        "map"
+      ],
+      "chapter": 5,
+      "chapter_title": "One Island's Weight"
     },
     {
       "id": "e44",
@@ -396,7 +602,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 44,
-      "tags": ["timeline", "company"]
+      "tags": [
+        "timeline",
+        "company"
+      ],
+      "chapter": 5,
+      "chapter_title": "One Island's Weight"
     },
     {
       "id": "e45",
@@ -405,7 +616,11 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 45,
-      "tags": ["company"]
+      "tags": [
+        "company"
+      ],
+      "chapter": 5,
+      "chapter_title": "One Island's Weight"
     },
     {
       "id": "e46",
@@ -414,7 +629,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 46,
-      "tags": ["geography", "timeline"]
+      "tags": [
+        "geography",
+        "timeline"
+      ],
+      "chapter": 5,
+      "chapter_title": "One Island's Weight"
     },
     {
       "id": "e47",
@@ -423,7 +643,11 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 47,
-      "tags": ["geography"]
+      "tags": [
+        "geography"
+      ],
+      "chapter": 5,
+      "chapter_title": "One Island's Weight"
     },
     {
       "id": "e48",
@@ -432,7 +656,11 @@
       "source_type": "article",
       "importance": "high",
       "slot": 48,
-      "tags": ["stat"]
+      "tags": [
+        "stat"
+      ],
+      "chapter": 6,
+      "chapter_title": "The Price of the Future"
     },
     {
       "id": "e49",
@@ -441,7 +669,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 49,
-      "tags": ["stat", "portrait"]
+      "tags": [
+        "stat",
+        "portrait"
+      ],
+      "chapter": 6,
+      "chapter_title": "The Price of the Future"
     },
     {
       "id": "e50",
@@ -450,7 +683,12 @@
       "source_type": "article",
       "importance": "high",
       "slot": 50,
-      "tags": ["stat", "timeline"]
+      "tags": [
+        "stat",
+        "timeline"
+      ],
+      "chapter": 6,
+      "chapter_title": "The Price of the Future"
     },
     {
       "id": "e51",
@@ -459,7 +697,11 @@
       "source_type": "article",
       "importance": "normal",
       "slot": 51,
-      "tags": ["stat"]
+      "tags": [
+        "stat"
+      ],
+      "chapter": 6,
+      "chapter_title": "The Price of the Future"
     }
   ]
 }

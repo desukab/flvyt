@@ -7,8 +7,9 @@ from .transitions import SUPPORTED_TRANSITIONS, transition_frames
 
 SUPPORTED_MODES = {"establish", "punch", "hold", "count", "detail", "move"}
 SUPPORTED_VISUALS = {
-    "title", "text", "claim", "quote", "stat", "counter", "timeline", "map",
-    "chart", "image", "portrait", "logo", "broll", "company", "default",
+  "title","claim","text","quote","stat","counter","timeline",
+  "map","chart","image","portrait","logo","broll","company","default",
+  "chapter","section"
 }
 
 

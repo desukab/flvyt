@@ -32,6 +32,8 @@ class Evidence:
     importance: str = "normal"
     tags: list[str] | None = None
     slot: int | None = None
+    chapter: int | None = None
+    chapter_title: str | None = None
 
 
 @dataclass
@@ -157,7 +159,17 @@ def build_beats(pack: StoryPack) -> list[dict[str, Any]]:
             "visual": "broll", "emphasis": "normal", "label": "THE SYSTEM",
         })
     previous_visual: str | None = None
+    previous_chapter: int | None = None
     for i, ev in enumerate(rows):
+        if ev.chapter is not None and ev.chapter != previous_chapter and ev.chapter != 1:
+            title = ev.chapter_title or f"Part {ev.chapter}"
+            beats.append({
+                "id": f"sec{ev.chapter:02d}", "kind": "section", "text": title,
+                "seconds": round(max(3.0, read_need(title)), 2),
+                "visual": "chapter", "emphasis": "normal",
+                "label": f"PART {ev.chapter}", "sources": [],
+            })
+        previous_chapter = ev.chapter
         visual = _pick_visual(ev, previous_visual)
         base = 4.0 if ev.importance == "high" else 3.4
         beats.append({

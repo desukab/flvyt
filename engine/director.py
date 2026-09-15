@@ -20,6 +20,7 @@ VISUALS = {
     "quote": ("quote", 3.4),
     "title": ("title", 4.0),
     "broll": ("broll", 4.0),
+    "chapter": ("chapter", 3.5),
 }
 
 

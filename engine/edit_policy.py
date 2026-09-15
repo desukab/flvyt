@@ -16,6 +16,7 @@ POLICY={
  "implication":EditDecision("punch",105,1.4,6.0),
  "thesis":EditDecision("hold",125,2.0,8.0),
  "close":EditDecision("hold",105,2.0,6.0),
+ "section":EditDecision("hold",72,1.8,6.0),
 }
 
 def decision(kind:str,emphasis:str="normal")->EditDecision:

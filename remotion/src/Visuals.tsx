@@ -207,6 +207,29 @@ export const TitleVisual: React.FC<VisualBeat> = ({text, mode}) => (
   </MotionShell>
 );
 
+export const ChapterVisual: React.FC<VisualBeat> = ({text, label = 'PART', mode}) => {
+  const frame = useCurrentFrame();
+  const n = text.match(/\d+/)?.[0] ?? '';
+  return (
+    <div style={{position: 'relative', width: '100%', height: '100%', overflow: 'hidden'}}>
+      <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(135deg,#0d1218,#2a3a4e)', overflow: 'hidden'}}>
+        <div style={{position: 'absolute', top: '22%', right: '16%', width: 340, height: 340, borderRadius: '50%', border: `1px solid ${ACCENT}`, opacity: 0.35, transform: `translate(${frame * 0.4}px,${frame * 0.25}px)`}} />
+        <div style={{position: 'absolute', top: '12%', left: '18%', width: 420, height: 420, border: '1px solid rgba(255,255,255,.12)', transform: `translate(-${frame * 0.3}px,-${frame * 0.2}px)`}} />
+      </div>
+      <Letterbox />
+      <div style={{position: 'absolute', inset: 0, background: 'linear-gradient(90deg,rgba(0,0,0,.55),rgba(0,0,0,.05))'}} />
+      <MotionShell mode={mode}>
+        <div style={{position: 'absolute', left: 140, bottom: 140, maxWidth: 1200}}>
+          {n && <div style={{fontSize: 300, fontWeight: 850, lineHeight: 0.7, letterSpacing: -12, color: ACCENT, opacity: 0.28, marginBottom: 18}}>{n}</div>}
+          <div style={{fontSize: 22, letterSpacing: 8, color: MUTED, textTransform: 'uppercase', marginBottom: 22}}>{label}</div>
+          <div style={{fontSize: 74, fontWeight: 850, lineHeight: 1.05, letterSpacing: -2}}><Rich text={text} /></div>
+        </div>
+      </MotionShell>
+      <SourceFooter sources={[]} />
+    </div>
+  );
+};
+
 const Letterbox = () => (
   <>
     <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: 96, background: 'linear-gradient(180deg, rgba(0,0,0,.9), rgba(0,0,0,0))'}} />
@@ -251,6 +274,7 @@ export const AssetVisual: React.FC<VisualBeat> = ({text, assetSrc, sources, mode
 export const Visual: React.FC<VisualBeat> = (props) => {
   switch (props.visual) {
     case 'title': return <TitleVisual {...props} />;
+    case 'chapter': case 'section': return <ChapterVisual {...props} />;
     case 'stat': case 'counter': return <StatVisual {...props} />;
     case 'chart': return <ChartVisual {...props} />;
     case 'timeline': return <TimelineVisual {...props} />;

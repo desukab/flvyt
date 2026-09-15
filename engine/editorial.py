@@ -23,6 +23,7 @@ DEFAULT_SLOTS: dict[str, list[tuple[str, int]]] = {
     "implication": [("establish", 1), ("punch", 2), ("hold", 1)],
     "thesis": [("establish", 1), ("hold", 3)],
     "close": [("hold", 1)],
+    "section": [("establish", 1), ("hold", 1)],
 }
 
 # Emphasis increases weight on everything that asks to be loud: punches lead,
@@ -35,6 +36,7 @@ HIGH_SLOTS: dict[str, list[tuple[str, int]]] = {
     "implication": [("punch", 3), ("hold", 1)],
     "thesis": [("hold", 4)],
     "close": [("hold", 2)],
+    "section": [("hold", 2)],
 }
 
 PURPOSE_TO_MODE: dict[str, dict[str, str]] = {
@@ -43,6 +45,7 @@ PURPOSE_TO_MODE: dict[str, dict[str, str]] = {
     "counter": {"establish": "count", "punch": "count", "hold": "hold", "detail": "detail"},
     "map": {"establish": "establish", "punch": "move", "hold": "hold", "detail": "move"},
     "timeline": {"establish": "establish", "punch": "move", "hold": "hold", "detail": "move"},
+    "chapter": {"establish": "establish", "punch": "hold", "hold": "hold", "detail": "hold"},
     "default": {"establish": "establish", "punch": "punch", "hold": "hold", "detail": "detail"},
 }
 
