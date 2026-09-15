@@ -12,6 +12,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from engine.asset_director import assign_assets
 from engine.audio import concat_wavs
+from engine.editorial import add_shots
+from engine.editorial_gate import raise_if_invalid
 from engine.project import Project
 from engine.timing import retime_project
 
@@ -19,6 +21,14 @@ from engine.timing import retime_project
 def run(cmd: list[str]) -> None:
     print("$", " ".join(cmd))
     subprocess.run(cmd, cwd=ROOT, check=True)
+
+
+def refresh_editorial_plan(path: Path) -> None:
+    """Regenerate sentence-level shots after any timing mutation."""
+    project = Project.load(path)
+    add_shots(project.beats)
+    raise_if_invalid(project.beats, fps=project.fps)
+    path.write_text(json.dumps(project.props(), indent=2, ensure_ascii=False), encoding="utf-8")
 
 
 p = argparse.ArgumentParser(description="Production FLVYT research/evidence-to-video build")
@@ -55,6 +65,9 @@ if registry.exists():
     project = ROOT / "projects/asset_planned.json"
     project.write_text(json.dumps(planned.props(), indent=2, ensure_ascii=False), encoding="utf-8")
 
+# Establish an executable editorial plan before narration, and validate it.
+refresh_editorial_plan(project)
+
 manifest = ROOT / "out/narration/tts_manifest.json"
 if args.tts_command:
     cmd = [sys.executable, "scripts/synthesize.py", str(project), "--command", args.tts_command, "--out-dir", "out/narration"]
@@ -63,6 +76,8 @@ if args.tts_command:
     run(cmd)
     if manifest.exists():
         retime_project(project, manifest)
+        # TTS is the master clock: regenerate shots from the new beat durations.
+        refresh_editorial_plan(project)
         manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
         ordered = [Path(manifest_data[b["id"]]) for b in Project.load(project).props()["beats"] if b["id"] in manifest_data]
         if ordered:
