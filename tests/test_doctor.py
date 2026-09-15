@@ -10,6 +10,19 @@ sys.path.insert(0, str(ROOT))
 from engine import env
 
 
+def host_report(name: str, required: bool, present: bool) -> dict:
+    state = "configured" if present else ("missing" if required else "optional")
+    return {
+        "name": name,
+        "required": required,
+        "present": present,
+        "status": state,
+        "stage": env.STAGE.get(name, "unknown"),
+        "guidance": env.GUIDANCE.get(name),
+        "detail": "detail",
+    }
+
+
 class DoctorTests(unittest.TestCase):
     def test_all_required_present(self):
         base = [
@@ -58,6 +71,41 @@ class DoctorTests(unittest.TestCase):
             reports = env.default_reports(tts_command=None)
             tts = next(r for r in reports if r["name"] == "tts")
             self.assertTrue(tts["present"])
+
+    def test_doctor_status_matrix(self):
+        base = [
+            host_report("python", required=True, present=True),
+            host_report("ffmpeg", required=True, present=False),
+            host_report("ollama", required=False, present=True),
+            host_report("tts", required=False, present=False),
+        ]
+        view = env.doctor(base)
+        self.assertEqual(view["status"]["python"], "CONFIGURED")
+        self.assertEqual(view["status"]["ffmpeg"], "MISSING")
+        self.assertEqual(view["status"]["ollama"], "CONFIGURED")
+        self.assertEqual(view["status"]["tts"], "OPTIONAL")
+        self.assertFalse(view["ok"])
+        self.assertEqual(view["missing_names"], ["ffmpeg"])
+
+    def test_doctor_stage_mapping_and_guidance(self):
+        base = [
+            host_report("ffmpeg", required=True, present=False),
+            host_report("tts", required=False, present=False),
+        ]
+        view = env.doctor(base)
+        stages = {entry["stage"] for entry in view["stages"]}
+        self.assertIn("audio assembly + mux", stages)
+        self.assertIn("narration synthesis", stages)
+        by_name = {r["name"]: r for r in base}
+        self.assertTrue(by_name["ffmpeg"]["guidance"])
+        self.assertIsNone(by_name["tts"]["guidance"])
+
+    def test_render_text_contains_status_and_fix(self):
+        base = [host_report("ffmpeg", required=True, present=False)]
+        text = env.render_text(base)
+        self.assertIn("MISSING", text)
+        self.assertIn("fix:", text)
+        self.assertIn("audio assembly + mux", text)
 
 
 if __name__ == "__main__":
