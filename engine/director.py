@@ -3,6 +3,7 @@ from __future__ import annotations
 from .project import Beat, Project
 from .editorial import add_shots
 from .transitions import assign_transitions
+from .story import read_need
 
 # Documentary editing grammar. Deterministic by design: the same script produces
 # a repeatable visual plan, making automated rendering debuggable.
@@ -11,7 +12,9 @@ VISUALS = {
     "stat": ("counter", 2.8),
     "chart": ("chart", 4.0),
     "person": ("portrait", 3.5),
+    "portrait": ("portrait", 3.5),
     "company": ("logo", 3.0),
+    "logo": ("logo", 3.0),
     "map": ("map", 4.0),
     "timeline": ("timeline", 4.0),
     "quote": ("quote", 3.4),
@@ -31,6 +34,10 @@ def direct(project: Project) -> Project:
     for i, beat in enumerate(project.beats or []):
         visual, default_seconds = VISUALS.get(beat.visual, VISUALS["claim"])
         seconds = beat.seconds if beat.seconds > 0 else default_seconds
+        # A beat authored with a too-short duration is lengthened to the
+        # readability floor; the renderer still honors the (possibly extended)
+        # plan exactly.
+        seconds = max(float(seconds), read_need(beat.text))
         planned.append(Beat(
             id=beat.id or f"beat_{i+1:03d}", kind=beat.kind, text=beat.text,
             seconds=seconds, visual=visual, emphasis=beat.emphasis,

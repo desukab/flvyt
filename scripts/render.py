@@ -15,6 +15,8 @@ from engine.director import direct
 from engine.project import Project
 from engine.quality import probe
 from engine.captions import words_to_srt
+from engine.editorial_quality import report_to_path as editorial_report_to_path
+from engine.manifest import write_manifest
 
 
 def _ffmpeg_audio(video: Path, audio: Path | None, out: Path) -> None:
@@ -102,6 +104,10 @@ def main() -> int:
         with_audio = work / "with_audio.mp4"
         final = work / "final.mp4"
         props.write_text(json.dumps(project.props(), indent=2), encoding="utf-8")
+        editorial_qa = editorial_report_to_path(props, ROOT / "out/editorial_qa.json")
+        print("Editorial QA:", json.dumps(
+            {"ok": editorial_qa["ok"], "fails": len(editorial_qa["fails"]),
+             "warns": len(editorial_qa["warns"])}))
         frames = project.duration_frames()
         cmd = [
             "npx", "remotion", "render", "remotion/src/index.tsx", "Documentary",
@@ -143,8 +149,23 @@ def main() -> int:
     qa_out = ROOT / "out/qa.json"
     qa_out.parent.mkdir(parents=True, exist_ok=True)
     qa_out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    narration_info = narration and {"wav": str(narration)}
+    caption_info = (srt.exists() and {"srt": str(srt)}) or (
+        args.transcript and {"transcript": args.transcript})
+    write_manifest(
+        project_path, ROOT / "out/manifest.json", report, editorial_qa,
+        root=ROOT,
+        narration=narration_info,
+        captions=caption_info,
+        render={
+            "fps": project.fps, "width": project.width, "height": project.height,
+            "frames": frames, "out": str(out),
+        },
+    )
     if not report.get("ok"):
         raise SystemExit("FLVYT delivery QA failed")
+    if not editorial_qa.get("ok"):
+        raise SystemExit("FLVYT editorial quality QA failed")
     print(f"Rendered and QA-passed: {out}")
     return 0
 

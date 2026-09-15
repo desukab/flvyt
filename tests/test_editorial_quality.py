@@ -81,6 +81,7 @@ class EditorialQualityTests(unittest.TestCase):
         report = self._analyze(beats)
         self.assertFalse(report["ok"])
         self.assertTrue(any("text density" in f for f in report["fails"]))
+        self.assertFalse(report["metrics"]["text_density"]["ok"])
 
     def test_short_shot_fails(self):
         beats = [{"id": "b1", "kind": "claim", "text": "Too short.", "seconds": 3.0,

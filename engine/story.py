@@ -11,6 +11,18 @@ from pathlib import Path
 from typing import Any
 
 
+# A beat's narration must remain readable on screen: if the planned duration is
+# too short for the sentence, no shot-splitting can rescue it, so the editor
+# lengthens the beat to a comfortable reading rate before it is stored.
+READABLE_CHARS_PER_SECOND = 16
+PACING_MAX_SECONDS = 13.0
+
+
+def read_need(text: str) -> float:
+    """Minimum duration a beat needs for its sentence to be read comfortably."""
+    return min(PACING_MAX_SECONDS, float(len(text)) / READABLE_CHARS_PER_SECOND)
+
+
 @dataclass
 class Evidence:
     id: str
@@ -65,6 +77,59 @@ def _visual_for_evidence(ev: Evidence) -> str:
     return "claim"
 
 
+# Content-supported alternates per visual family: switching a geography beat to a
+# timeline card (for example) is still faithful to the source material and keeps
+# a long factual stretch from stalling into one monotonous visual. "claim" is the
+# universal neutral card — a plain title/text never misrepresents a claim.
+ALTERNATES = {
+    "map": ["timeline", "chart", "stat", "claim"],
+    "timeline": ["chart", "stat", "map", "claim"],
+    "chart": ["stat", "timeline", "map", "claim"],
+    "stat": ["chart", "timeline", "map", "claim"],
+    "logo": ["claim", "stat", "chart"],
+    "portrait": ["claim", "quote"],
+    "quote": ["claim"],
+    "claim": [],
+}
+
+
+def _alternates_for(ev: Evidence) -> list[str]:
+    """Alternates a beat may use without misrepresenting its content."""
+    tags = {tag.lower() for tag in (ev.tags or [])}
+    out: list[str] = []
+    for visual in ALTERNATES.get(_visual_for_evidence(ev), []):
+        if visual == "claim":
+            out.append(visual)
+        elif visual in {"stat", "chart"} and ("stat" in tags or "chart" in tags):
+            out.append(visual)
+        elif visual == "map" and ("map" in tags or "geography" in tags):
+            out.append(visual)
+        elif visual == "timeline" and "timeline" in tags:
+            out.append(visual)
+        elif visual == "quote" and ev.source_type == "interview":
+            out.append(visual)
+        elif visual == "portrait" and ("portrait" in tags or "person" in tags):
+            out.append(visual)
+    return out
+
+
+def _pick_visual(ev: Evidence, previous: str | None) -> str:
+    """Choose this beat's visual, rotating through content-supported alternates.
+
+    The primary visual always wins on the first occurrence; a run of identical
+    visuals is broken the moment another faithful visual is available so a long
+    evidence stretch never turns into one unchanging background.
+    """
+    primary = _visual_for_evidence(ev)
+    if previous is None or primary != previous:
+        return primary
+    alternates = _alternates_for(ev)
+    for visual in alternates:
+        if visual != previous:
+            return visual
+    return primary
+
+
 def build_beats(pack: StoryPack) -> list[dict[str, Any]]:
     """Create a restrained hook → context → evidence → implication → thesis arc.
 
@@ -81,31 +146,38 @@ def build_beats(pack: StoryPack) -> list[dict[str, Any]]:
     )
     beats: list[dict[str, Any]] = [{
         "id": "hook", "kind": "hook", "text": pack.thesis or pack.title,
-        "seconds": 4.0, "visual": "claim", "emphasis": "high", "label": "THE QUESTION",
+        "seconds": round(max(4.0, read_need(pack.thesis or pack.title)), 2),
+        "visual": "claim", "emphasis": "high", "label": "THE QUESTION",
     }]
     if rows:
+        context = "The answer sits inside a chain of specialized decisions and infrastructure."
         beats.append({
-            "id": "context", "kind": "context",
-            "text": "The answer sits inside a chain of specialized decisions and infrastructure.",
-            "seconds": 4.0, "visual": "broll", "emphasis": "normal", "label": "THE SYSTEM",
+            "id": "context", "kind": "context", "text": context,
+            "seconds": round(max(4.0, read_need(context)), 2),
+            "visual": "broll", "emphasis": "normal", "label": "THE SYSTEM",
         })
+    previous_visual: str | None = None
     for i, ev in enumerate(rows):
-        visual = _visual_for_evidence(ev)
+        visual = _pick_visual(ev, previous_visual)
+        base = 4.0 if ev.importance == "high" else 3.4
         beats.append({
             "id": f"e{i+1:02d}", "kind": "evidence", "text": ev.claim,
-            "seconds": 4.0 if ev.importance == "high" else 3.4,
+            "seconds": round(max(base, read_need(ev.claim)), 2),
             "visual": visual, "emphasis": "high" if ev.importance == "high" else "normal",
             "label": ev.source_type.upper(), "sources": [ev.source],
         })
+        previous_visual = visual
+    implication = "The important detail is not any single company or machine; it is the dependency between them."
     beats.extend([
         {
-            "id": "implication", "kind": "implication",
-            "text": "The important detail is not any single company or machine; it is the dependency between them.",
-            "seconds": 4.2, "visual": "map", "emphasis": "normal", "label": "THE CONNECTION",
+            "id": "implication", "kind": "implication", "text": implication,
+            "seconds": round(max(4.2, read_need(implication)), 2),
+            "visual": "map", "emphasis": "normal", "label": "THE CONNECTION",
         },
         {
             "id": "thesis", "kind": "thesis", "text": pack.thesis or pack.title,
-            "seconds": 4.4, "visual": "quote", "emphasis": "high", "label": "THE THESIS",
+            "seconds": round(max(4.4, read_need(pack.thesis or pack.title)), 2),
+            "visual": "quote", "emphasis": "high", "label": "THE THESIS",
         },
     ])
     return beats

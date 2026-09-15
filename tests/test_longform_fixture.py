@@ -27,11 +27,13 @@ VERIFIED_SOURCES = {
 
 
 class LongFormFixtureTests(unittest.TestCase):
-    def test_fixture_is_three_to_five_minutes(self):
+    def test_fixture_is_five_to_eight_minutes(self):
+        # The editorial brain paces every beat to a readable narration rate, so
+        # the long-form fixture now runs six and a half minutes of verified copy.
         project = Project.load(PROJECT)
         seconds = project.duration_frames() / project.fps
-        self.assertGreaterEqual(seconds, 180)
-        self.assertLessEqual(seconds, 300)
+        self.assertGreaterEqual(seconds, 300)
+        self.assertLessEqual(seconds, 480)
         self.assertGreaterEqual(len(project.beats), 30)
 
     def test_fixture_passes_editorial_gate(self):
@@ -53,6 +55,37 @@ class LongFormFixtureTests(unittest.TestCase):
             self.assertIsNotNone(item.get("slot"), item["id"])
         slots = [item["slot"] for item in data["evidence"]]
         self.assertEqual(sorted(slots), list(range(1, len(slots) + 1)))
+
+    def test_no_shot_is_left_without_text(self):
+        project = Project.load(PROJECT)
+        add_shots(project.beats)
+        for beat in project.beats:
+            for shot in beat.shots:
+                self.assertTrue(str(shot["text"]).strip(), f"{beat.id} {shot['id']}")
+
+    def test_shot_text_is_distributed_in_readable_pieces(self):
+        # No single shot asks the viewer to read faster than 22 chars/second.
+        project = Project.load(PROJECT)
+        add_shots(project.beats)
+        for beat in project.beats:
+            for shot in beat.shots:
+                rate = len(str(shot["text"])) / max(0.1, float(shot["seconds"]))
+                self.assertLess(rate, 22.0, f"{beat.id} {shot['id']} at {rate:.1f}")
+
+    def test_long_fixture_passes_editorial_quality(self):
+        from engine.editorial_quality import analyze
+        import tempfile, os
+        project = Project.load(PROJECT)
+        add_shots(project.beats)
+        props = project.props()
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
+            json.dump(props, fh)
+            tmp = fh.name
+        try:
+            report = analyze(tmp)
+        finally:
+            os.unlink(tmp)
+        self.assertTrue(report["ok"], "fails: %s" % report["fails"])
 
 
 if __name__ == "__main__":

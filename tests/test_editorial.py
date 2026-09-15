@@ -99,6 +99,42 @@ class VarietyTests(unittest.TestCase):
         self.assertEqual(len(clauses), 2)
         self.assertIn("$1,234,567 in 2024", clauses[0])
 
+    def test_short_single_thought_progresses_word_by_word(self):
+        text = "A single thought with no commas at all anywhere."
+        texts = _distribute_text(text, 3)
+        self.assertEqual(len(texts), 3)
+        for t in texts:
+            self.assertTrue(t.strip())
+        self.assertEqual(" ".join(texts).split(), text.split())
+
+    def test_thesis_reveals_then_holds_the_whole_sentence(self):
+        text = "Every piece of this supply chain matters more than its share of revenue."
+        texts = _distribute_text(text, 3, echo=True)
+        self.assertEqual(len(texts), 3)
+        self.assertEqual(texts[-1], text)
+        self.assertTrue(text.startswith(texts[0]))
+        self.assertTrue(texts[0])
+        self.assertTrue(texts[1])
+
+    def test_distribution_never_leaves_a_shot_empty(self):
+        # Fuzz the public contract: n fragments, none empty, nothing dropped.
+        import random
+        random.seed(1234)
+        for _ in range(2000):
+            text = " ".join(random.choice(["alpha", "beta"]) for _ in range(random.randint(1, 20)))
+            n = random.randint(1, 6)
+            texts = _distribute_text(text, n, echo=bool(random.getrandbits(1)))
+            self.assertEqual(len(texts), n)
+            for part in texts:
+                self.assertTrue(part.strip(), (text, n))
+            original = set(text.split())
+            self.assertTrue(original.issubset(" ".join(texts).split()), (text, n))
+
+    def test_clause_split_does_not_break_numbers(self):
+        clauses = _clauses("It cost $1,234,567 in 2024, and it rose.")
+        self.assertEqual(len(clauses), 2)
+        self.assertIn("$1,234,567 in 2024", clauses[0])
+
     def test_structure_differs_between_kinds(self):
         signatures = {}
         for kind in ("hook", "claim", "evidence", "implication", "thesis", "close"):

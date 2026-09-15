@@ -87,28 +87,67 @@ def _pattern(kind: str, emphasis: str, visual: str, seconds: float) -> list[dict
     ]
 
 
-def _distribute_text(text: str, n: int) -> list[str]:
-    """Assign clause fragments to shots by relative character weight.
+def _word_buckets(words: list[str], n: int) -> list[str]:
+    """Split a single-thought sentence into n balanced, monotonic word chunks.
 
-    When a sentence has fewer clauses than shots, every shot carries the full
-    sentence: the beat is a valid single thought and repeating it across an
-    establish→hold rhythm is intentional, not a bug.
+    Word boundaries round to the nearest bucket so every bucket is non-empty
+    whenever there are at least as many words as buckets.
+    """
+    buckets: list[list[str]] = [[] for _ in range(n)]
+    m = len(words)
+    for i, word in enumerate(words):
+        buckets[min(n - 1, int(i * n / m + 0.5))].append(word)
+    return [" ".join(bucket) for bucket in buckets]
+
+
+def _running_text(words: list[str], n: int) -> list[str]:
+    """Progressive reveal: each shot continues the sentence, the last is whole.
+
+    This is the deliberate "build it up, then hold the full line" shape for
+    thesis/close kinds: never repeats a frame, and the final card carries the
+    complete sentence the way a strong closer should. A sentence too short to
+    progress is held whole on every card instead.
+    """
+    m = len(words)
+    if m < n:
+        return [" ".join(words)] * n
+    return [" ".join(words[:int(round(m * (i + 1) / n))]) for i in range(n)]
+
+
+def _distribute_text(text: str, n: int, echo: bool = False) -> list[str]:
+    """Assign sentence fragments to shots by relative character weight.
+
+    `echo` kinds (thesis/close) *build toward* the whole sentence so the final
+    shot holds the full line. Everywhere else text is partitioned along its
+    natural clauses — a single-thought claim is progressed word by word — so a
+    short shot never asks the viewer to read the same sentence twice and no
+    shot is ever left without text.
     """
     if n <= 1:
         return [text]
+    if echo:
+        return _running_text(text.split(), n)
     clauses = _clauses(text)
     if len(clauses) < n:
-        return [text] * n
+        if len(text.split()) < n:
+            return [text] * n
+        return _word_buckets(text.split(), n)
     total = sum(len(c) for c in clauses)
     target = total / n
     groups: list[list[str]] = [[] for _ in range(n)]
     index = 0
     used = 0.0
-    for clause in clauses:
-        used += len(clause)
-        groups[min(index, n - 1)].append(clause)
-        if used >= target * (index + 1) and index < n - 1:
+    for i, clause in enumerate(clauses):
+        # Later groups must each keep at least one clause: advance before taking
+        # the one clause that would starve the remaining groups.
+        while index < n - 1 and (len(clauses) - i) <= (n - index - 1) and used > 0:
             index += 1
+            used = 0.0
+        groups[index].append(clause)
+        used += len(clause)
+        if index < n - 1 and used >= target:
+            index += 1
+            used = 0.0
     return [" ".join(group) for group in groups]
 
 
@@ -154,8 +193,13 @@ def make_shots(text: str, seconds: float, visual: str, emphasis: str = "normal",
             pattern = [pattern[0], pattern[-1]]
         n = 2
 
-    texts = _distribute_text(text, n)
-    weights = [int(slot["weight"]) for slot in pattern]
+    echo = kind in {"thesis", "close"}
+    texts = _distribute_text(text, n, echo=echo)
+    # Seconds follow the text, not the slot archetype: a shot that carried a
+    # long clause gets proportionally more screen time, a punch with a short
+    # phrase stays punchy. This keeps every shot within the readability budget
+    # without inventing time.
+    weights = [max(1, len(t)) for t in texts]
     seconds_list = _seconds_for(weights, duration)
     return [{
         "id": f"s{i + 1}",

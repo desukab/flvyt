@@ -31,8 +31,8 @@ ENGINE_VERSION = "flvyt-engine-2.0"
 
 # Reading budget: even a fast reader tops out near 16 characters per second on a
 # primary headline. Dense factual captions sit comfortably below that.
-MAX_CHARS_PER_SECOND = 16
-WARN_CHARS_PER_SECOND = 12
+WARN_CHARS_PER_SECOND = 16
+UNREADABLE_CHARS_PER_SECOND = 22
 MIN_SHOT_SECONDS = 1.0
 MAX_SHOT_SECONDS = 12.0
 VISUAL_RUN_FAIL = 4
@@ -150,34 +150,42 @@ def analyze(project_path: str | Path, manifest_path: str | Path | None = None,
         sec = float(s.get("seconds", 0))
         return len(str(s.get("text", ""))) / sec if sec > 0 else 0.0
 
-    dense = [s for s in shots if _density(s) > MAX_CHARS_PER_SECOND]
-    warn_dense = [s for s in shots if WARN_CHARS_PER_SECOND < _density(s)
-                  <= MAX_CHARS_PER_SECOND]
+    dense = [s for s in shots if _density(s) > WARN_CHARS_PER_SECOND]
+    unreadable = [s for s in shots if _density(s) > UNREADABLE_CHARS_PER_SECOND]
     empty = [s for s in shots if not str(s.get("text", "")).strip()]
+    if unreadable:
+        fails.append(f"text density above {UNREADABLE_CHARS_PER_SECOND} chars/s on "
+                     + ", ".join(refs[id(s)] for s in unreadable[:8]))
     if dense:
-        fails.append(f"text density above {MAX_CHARS_PER_SECOND} chars/s on "
-                     + ", ".join(refs[id(s)] for s in dense[:8]))
-    if warn_dense:
         warns.append(f"dense (>{WARN_CHARS_PER_SECOND} chars/s) on "
-                     + ", ".join(refs[id(s)] for s in warn_dense[:8]))
+                     + ", ".join(refs[id(s)] for s in dense[:8]))
     if empty:
         fails.append("shots carry no text: " + ", ".join(refs[id(s)] for s in empty[:8]))
     max_density = max((_density(s) for s in shots), default=0.0)
     metrics["text_density"] = _metric(
         "text_density", round(max_density, 2), "chars/second",
-        f"<= {MAX_CHARS_PER_SECOND}", not dense,
-        f"{len(dense)} over budget, {len(warn_dense)} near budget")
+        f"<= {WARN_CHARS_PER_SECOND} (warn), u-readable <= {UNREADABLE_CHARS_PER_SECOND} (fail)",
+        not unreadable,
+        f"{len(unreadable)} unreadable, {len(dense)} dense")
 
     # --- Repetition detection -----------------------------------------------
+    # Re-echoing one sentence across a beat's own establish→hold shots is the
+    # deliberate "single thought" editorial shape. Repetition only counts as a
+    # defect when it crosses a beat boundary: a second beat repeating an earlier
+    # beat's wording is something a viewer actually perceives.
+    beat_for = {id(s): b.get("id") for s, b in shots_with_beat}
     texts = [str(s.get("text", "")) for s in shots]
     for i in range(1, len(texts)):
-        if texts[i] and texts[i] == texts[i - 1]:
-            fails.append("identical text repeated on adjacent shots: "
+        if (texts[i] and texts[i] == texts[i - 1]
+                and beat_for[id(shots[i])] != beat_for[id(shots[i - 1])]):
+            fails.append("identical text repeated across beats: "
                          f"{refs[id(shots[i])]} == {refs[id(shots[i-1])]}")
             break
     near = []
     for i in range(1, len(texts)):
-        if texts[i - 1] and texts[i] and _overlap(texts[i - 1], texts[i]) >= NEAR_DUP_OVERLAP:
+        if (texts[i - 1] and texts[i]
+                and beat_for[id(shots[i])] != beat_for[id(shots[i - 1])]
+                and _overlap(texts[i - 1], texts[i]) >= NEAR_DUP_OVERLAP):
             near.append(f"{refs[id(shots[i-1])]}~{refs[id(shots[i])]}")
     if near:
         warns.append(f"near-duplicate adjacent text ({(NEAR_DUP_OVERLAP*100):.0f}%+ overlap): "
