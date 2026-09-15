@@ -82,7 +82,9 @@ def _visual_for_evidence(ev: Evidence) -> str:
 # Content-supported alternates per visual family: switching a geography beat to a
 # timeline card (for example) is still faithful to the source material and keeps
 # a long factual stretch from stalling into one monotonous visual. "claim" is the
-# universal neutral card — a plain title/text never misrepresents a claim.
+# universal neutral card — a plain title/text never misrepresents a claim; "broll"
+# is the neutral textured background the claim text sits on, so a run of plain
+# claims can rotate claim/broll without ever inventing a chart or map.
 ALTERNATES = {
     "map": ["timeline", "chart", "stat", "claim"],
     "timeline": ["chart", "stat", "map", "claim"],
@@ -91,7 +93,7 @@ ALTERNATES = {
     "logo": ["claim", "stat", "chart"],
     "portrait": ["claim", "quote"],
     "quote": ["claim"],
-    "claim": [],
+    "claim": ["broll"],
 }
 
 
@@ -101,6 +103,8 @@ def _alternates_for(ev: Evidence) -> list[str]:
     out: list[str] = []
     for visual in ALTERNATES.get(_visual_for_evidence(ev), []):
         if visual == "claim":
+            out.append(visual)
+        elif visual == "broll":
             out.append(visual)
         elif visual in {"stat", "chart"} and ("stat" in tags or "chart" in tags):
             out.append(visual)

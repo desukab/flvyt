@@ -114,14 +114,89 @@ def source_type_for(url: str) -> str:
     return "article"
 
 
+# Conservative, content-supported visual signals. A sentence is only tagged when
+# its own words explicitly carry the signal (a figure, geography, a date or a
+# corporate actor), so the deterministic editor never turns a plain factual
+# sentence into a misleading chart/map/stat card.
+_STAT_PATTERNS = (
+    r"\$\d",
+    r"\d[\d,]*\.?\d*\s*(?:%|percent|ppm|mhz|ghz|km|miles?|tons?|watts?|billion|million|trillion|thousand)",
+    r"\b(?:megawatt|gigawatt|kilowatt|terabyte|gigabyte|megabit|nanosecond|microsecond|centimeter)\b",
+    r"\b(?:gw|mw|tb|gb)\b",
+    r"\d[\d,]+\s*(?:x|times?)\b",
+)
+_MAP_WORDS = frozenset(
+    "country countries continent global regions region ocean border coast shoreline "
+    "city cities province provinces state states territory territories airport "
+    "airports harbor harbours strait straits urban satellite ground network "
+    "latitude longitude orbit orbits".split()
+)
+_TIMELINE_PATTERNS = (r"\b(?:1[89]\d\d|20\d\d)\b", r"\b(?:decade|century)\b",
+                      r"\b(?:since|launched|founded|entered|introduced|commissioned|deployed)\b")
+_COMPANY_WORDS = frozenset("company companies corporation firm inc. llc manufacturer".split())
+_PERSON_WORDS = frozenset(
+    "engineer engineers scientist scientists researcher researchers team developer "
+    "developers operator operators technician technicians".split()
+)
+
+
+def _infer_tags(sentence: str) -> list[str]:
+    """Deterministic, content-supported tags for plain-claim visual variety.
+
+    Only explicit signals in the sentence produce a tag, so the visual chosen
+    stays faithful to what the source actually said. Any number of signals may
+    tag a sentence; `_pick_visual` later rotates among them and the neutral
+    alternates so adjacent evidence never stalls into one visual.
+    """
+    low = sentence.lower()
+    tags: list[str] = []
+    if any(re.search(p, sentence) for p in _STAT_PATTERNS):
+        tags.append("stat")
+    if any(word in low for word in _MAP_WORDS):
+        tags.append("geography")
+    if any(re.search(p, low) for p in _TIMELINE_PATTERNS):
+        tags.append("timeline")
+    if any(word in low for word in _COMPANY_WORDS):
+        tags.append("company")
+    if any(word in low for word in _PERSON_WORDS):
+        tags.append("person")
+    return tags
+
+
+def _clip_claim(sentence: str, limit: int) -> str:
+    """Verbatim truncation at a natural clause boundary within a readable budget.
+
+    Cutting inside a clause would garble the source; cutting at a separator (or a
+    word boundary) keeps the claim a faithful, unparaphrased fragment of the
+    researched text. Long journalistic sentences are the fresh-topic failure mode
+    here: clipped at a clause boundary they stay inside the on-screen reading
+    budget, so a CPU-built documentary still passes editorial QA.
+    """
+    if len(sentence) <= limit:
+        return sentence
+    window = sentence[:limit]
+    cut = -1
+    for sep in (",", ";", ":", "—", "–", "("):
+        j = window.rfind(sep)
+        if j > cut:
+            cut = j
+    if cut < 0:
+        cut = window.rfind(" ")
+    return sentence[:cut + 1].strip() if cut >= 0 else sentence[:limit].rstrip(" ")
+
+
 def extract(research: dict[str, Any], *, max_items: int = 12,
-            max_claim_chars: int = 280) -> dict[str, Any]:
+            max_claim_chars: int = 240,
+            section_size: int = 4) -> dict[str, Any]:
     """Build a verified evidence pack from researched source material.
 
-    Every claim is a verbatim sentence drawn directly from a source's extracted
-    text (or its search snippet when extraction produced nothing), so nothing is
-    ever fabricated. Sources that yield no usable sentence are recorded, not
-    silently dropped.
+    Every claim is a verbatim sentence (or clause) drawn directly from a source's
+    extracted text (or its search snippet when extraction produced nothing), so
+    nothing is ever fabricated. Claims are clipped at a clause boundary to stay
+    readable on screen, tagged only from explicit in-sentence signals, and grouped
+    into numbered sections so a long documentary never stalls into one unchanging
+    background. Sources that yield no usable claim are recorded, not silently
+    dropped.
     """
     topic = str(research.get("topic") or "").strip()
     tokens = _topic_tokens(topic)
@@ -151,15 +226,20 @@ def extract(research: dict[str, Any], *, max_items: int = 12,
         used.append(url)
         if len(evidence) >= max_items:
             break
-        sentence = chosen if len(chosen) <= max_claim_chars else chosen[:max_claim_chars]
+        claim = _clip_claim(chosen, max_claim_chars)
+        if not claim:
+            continue
+        chapter = len(evidence) // section_size + 1
         evidence.append({
             "id": f"e{len(evidence) + 1:02d}",
-            "claim": sentence,
+            "claim": claim,
             "source": url,
             "source_type": source_type_for(url),
             "importance": "high" if not evidence else "normal",
-            "tags": [],
-            "quote": sentence,
+            "tags": _infer_tags(claim),
+            "quote": claim,
+            "chapter": chapter,
+            "chapter_title": f"Part {chapter}",
         })
 
     if not evidence:
@@ -175,7 +255,7 @@ def extract(research: dict[str, Any], *, max_items: int = 12,
         "grounding": {
             "method": "deterministic-source-extraction",
             "engine": "engine.grounding.extract",
-            "note": "No LLM was used. Every claim is a verbatim sentence from a "
+            "note": "No LLM was used. Every claim is a verbatim fragment from a "
                     "supplied source; nothing was generated or invented.",
             "sources_used": used,
             "sources_skipped": skipped,
