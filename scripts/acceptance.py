@@ -75,7 +75,8 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("Acceptance output has no audio stream")
 
     duration = float(data.get("format", {}).get("duration", 0) or 0)
-    expected = project.duration_frames() / project.fps
+    runtime_reloaded = Project.load(runtime_project)
+    expected = runtime_reloaded.duration_frames() / runtime_reloaded.fps
     if duration < expected - 0.25:
         raise SystemExit(f"Acceptance output is too short: {duration:.2f}s < {expected:.2f}s")
 

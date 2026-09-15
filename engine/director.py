@@ -21,13 +21,16 @@ VISUALS = {
 
 
 def direct(project: Project) -> Project:
-    """Normalize beats into an executable visual plan owned by FLVYT."""
+    """Normalize beats into an executable visual plan owned by FLVYT.
+
+    Beat seconds are the single source of truth: the renderer must not silently
+    shorten what the editorial plan advertised, or the planned runtime stops
+    matching the delivered video.
+    """
     planned: list[Beat] = []
     for i, beat in enumerate(project.beats or []):
         visual, default_seconds = VISUALS.get(beat.visual, VISUALS["claim"])
         seconds = beat.seconds if beat.seconds > 0 else default_seconds
-        if beat.emphasis == "high":
-            seconds = max(1.8, seconds - 0.35)
         planned.append(Beat(
             id=beat.id or f"beat_{i+1:03d}", kind=beat.kind, text=beat.text,
             seconds=seconds, visual=visual, emphasis=beat.emphasis,
