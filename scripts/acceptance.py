@@ -54,7 +54,6 @@ def main(argv: list[str] | None = None) -> int:
         wavs.append(wav)
 
     master = concat_wavs(wavs, narration_dir / "master.wav")
-    out = ROOT / "out/acceptance/acceptance.mp4"
     subprocess.run([
         sys.executable, str(ROOT / "scripts/render.py"),
         str(runtime_project), "--out", str(out), "--narration", str(master),
