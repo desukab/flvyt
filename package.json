@@ -12,7 +12,8 @@
     "synthesize": "python scripts/synthesize.py",
     "ingest-asset": "python scripts/ingest_asset.py",
     "typecheck": "tsc --noEmit",
-    "python-check": "python -m compileall engine scripts"
+    "test": "python -m unittest discover -s tests",
+    "python-check": "python -m compileall engine scripts tests"
   },
   "dependencies": {
     "@remotion/cli": "4.0.524",

@@ -3,10 +3,12 @@ from __future__ import annotations
 
 from typing import Any
 
+from .transitions import SUPPORTED_TRANSITIONS, transition_frames
+
 SUPPORTED_MODES = {"establish", "punch", "hold", "count", "detail", "move"}
 SUPPORTED_VISUALS = {
     "title", "text", "claim", "quote", "stat", "counter", "timeline", "map",
-    "image", "portrait", "logo", "broll", "company", "default",
+    "chart", "image", "portrait", "logo", "broll", "company", "default",
 }
 
 
@@ -24,6 +26,8 @@ def validate_shots(beats: list[Any], fps: int = 30, tolerance_frames: int = 1) -
             errors.append(f"{beat.id}: missing shot plan")
             continue
         total = 0.0
+        noncuts = 0
+        previous_transition = "cut"
         for index, shot in enumerate(shots, 1):
             seconds = float(shot.get("seconds", 0))
             if seconds <= 0:
@@ -34,10 +38,41 @@ def validate_shots(beats: list[Any], fps: int = 30, tolerance_frames: int = 1) -
             mode = shot.get("mode", "hold")
             if mode not in SUPPORTED_MODES:
                 errors.append(f"{beat.id}/s{index}: unsupported mode '{mode}'")
+            transition = str(shot.get("transition", "cut"))
+            if transition not in SUPPORTED_TRANSITIONS:
+                errors.append(f"{beat.id}/s{index}: unsupported transition '{transition}'")
+            elif transition != "cut":
+                required = transition_frames(transition, fps)
+                frames = int(shot.get("transitionFrames", 0))
+                if frames != required:
+                    errors.append(
+                        f"{beat.id}/s{index}: {transition} needs {required} frames, got {frames}"
+                    )
+                if previous_transition == transition:
+                    errors.append(
+                        f"{beat.id}/s{index}: repeated {transition} on adjacent shots "
+                        f"violates the no-spam rule"
+                    )
+                noncuts += 1
+            previous_transition = transition
             total += seconds
+        if noncuts > 1:
+            errors.append(f"{beat.id}: more than one non-cut transition per beat")
         if abs(total - float(beat.seconds)) > tolerance:
             errors.append(
                 f"{beat.id}: shot duration {total:.3f}s != beat {float(beat.seconds):.3f}s"
+            )
+    for previous_beat, beat in zip(beats, beats[1:]):
+        prev_shots = getattr(previous_beat, "shots", None) or []
+        cur_shots = getattr(beat, "shots", None) or []
+        if not prev_shots or not cur_shots:
+            continue
+        prev_last = str(prev_shots[-1].get("transition", "cut"))
+        cur_first = str(cur_shots[0].get("transition", "cut"))
+        if prev_last != "cut" and prev_last == cur_first:
+            errors.append(
+                f"{beat.id}: repeated {cur_first} across beat boundary "
+                f"({previous_beat.id}->{beat.id}) violates the no-spam rule"
             )
     return errors
 

@@ -1,40 +1,170 @@
-"""Sentence-level editorial grammar for automated documentary pacing."""
+"""Sentence-level editorial grammar for automated documentary pacing.
+
+The planner is deterministic: the same narration text, duration, visual and
+beat kind always produce the same shot plan. It varies the structure by beat
+kind, uses emphasis deliberately (punches and long holds), splits long
+sentences along their natural clauses instead of pure arithmetic fractions,
+and always preserves the exact narration duration.
+"""
 from __future__ import annotations
 import re
+import zlib
 from typing import Any
 from .edit_policy import decision
+
+# Per-kind shot *purposes*. Purpose tokens are translated into actual shot modes
+# through the beat's visual family so map/timeline/stat shots never misuse modes
+# that belong to text cards.
+DEFAULT_SLOTS: dict[str, list[tuple[str, int]]] = {
+    "hook": [("punch", 3), ("hold", 1)],
+    "claim": [("establish", 2), ("punch", 2), ("hold", 1)],
+    "evidence": [("establish", 2), ("detail", 2), ("hold", 1)],
+    "context": [("establish", 2), ("detail", 1), ("hold", 2)],
+    "implication": [("establish", 1), ("punch", 2), ("hold", 1)],
+    "thesis": [("establish", 1), ("hold", 3)],
+    "close": [("hold", 1)],
+}
+
+# Emphasis increases weight on everything that asks to be loud: punches lead,
+# holds hold longer, evidence detail turns into a beat before repeating text.
+HIGH_SLOTS: dict[str, list[tuple[str, int]]] = {
+    "hook": [("punch", 3), ("hold", 2)],
+    "claim": [("punch", 3), ("establish", 1), ("hold", 2)],
+    "evidence": [("detail", 2), ("punch", 2), ("hold", 2)],
+    "context": [("establish", 2), ("detail", 2), ("hold", 2)],
+    "implication": [("punch", 3), ("hold", 1)],
+    "thesis": [("hold", 4)],
+    "close": [("hold", 2)],
+}
+
+PURPOSE_TO_MODE: dict[str, dict[str, str]] = {
+    "stat": {"establish": "count", "punch": "count", "hold": "hold", "detail": "detail"},
+    "chart": {"establish": "count", "punch": "count", "hold": "hold", "detail": "detail"},
+    "counter": {"establish": "count", "punch": "count", "hold": "hold", "detail": "detail"},
+    "map": {"establish": "establish", "punch": "move", "hold": "hold", "detail": "move"},
+    "timeline": {"establish": "establish", "punch": "move", "hold": "hold", "detail": "move"},
+    "default": {"establish": "establish", "punch": "punch", "hold": "hold", "detail": "detail"},
+}
+
+MIN_SHOT_SECONDS = 1.0
 
 
 def _tokens(text: str) -> list[str]:
     return re.findall(r"\b[\w'-]+\b", text)
 
 
-def make_shots(text: str, seconds: float, visual: str, emphasis: str = "normal", kind: str = "claim") -> list[dict[str, Any]]:
-    """Turn one narration beat into a restrained deterministic shot plan."""
+def _clauses(text: str) -> list[str]:
+    """Split a narration sentence on clause boundaries, never inside numbers.
+
+    A comma followed by a digit is treated as a thousands separator and kept
+    inside the number ("$1,234,567"); every other comma, semicolon, colon or
+    dash is a boundary.
+    """
+    parts = re.split(r",(?!\d)|[;:]|[—–]|।", text)
+    return [p.strip() for p in parts if p.strip()]
+
+
+def _fingerprint(text: str) -> int:
+    return zlib.crc32(text.encode("utf-8"))
+
+
+def _mode(visual: str, purpose: str) -> str:
+    table = PURPOSE_TO_MODE.get(visual, PURPOSE_TO_MODE["default"])
+    return table.get(purpose, "establish")
+
+
+def _pattern(kind: str, emphasis: str, visual: str, seconds: float) -> list[dict[str, Any]]:
+    slots = (HIGH_SLOTS if emphasis == "high" else DEFAULT_SLOTS).get(kind, DEFAULT_SLOTS["claim"])
+    max_shots = max(1, int(seconds // MIN_SHOT_SECONDS))
+    while len(slots) > max_shots and len(slots) > 2:
+        candidates = [i for i in range(1, len(slots) - 1) if slots[i][0] != "punch"]
+        if not candidates:
+            candidates = list(range(1, len(slots) - 1))
+        slots = slots[:candidates[0]] + slots[candidates[0] + 1:]
+    return [
+        {"purpose": purpose, "weight": weight, "visual": visual, "mode": _mode(visual, purpose)}
+        for purpose, weight in slots
+    ]
+
+
+def _distribute_text(text: str, n: int) -> list[str]:
+    """Assign clause fragments to shots by relative character weight.
+
+    When a sentence has fewer clauses than shots, every shot carries the full
+    sentence: the beat is a valid single thought and repeating it across an
+    establish→hold rhythm is intentional, not a bug.
+    """
+    if n <= 1:
+        return [text]
+    clauses = _clauses(text)
+    if len(clauses) < n:
+        return [text] * n
+    total = sum(len(c) for c in clauses)
+    target = total / n
+    groups: list[list[str]] = [[] for _ in range(n)]
+    index = 0
+    used = 0.0
+    for clause in clauses:
+        used += len(clause)
+        groups[min(index, n - 1)].append(clause)
+        if used >= target * (index + 1) and index < n - 1:
+            index += 1
+    return [" ".join(group) for group in groups]
+
+
+def _seconds_for(weights: list[int], total: float) -> list[float]:
+    """Split a beat duration across shots by editorial weight, min duration kept."""
+    n = len(weights)
+    mins = [MIN_SHOT_SECONDS] * n
+    budget = total - sum(mins)
+    if budget < 0:
+        raise ValueError(f"duration {total:.2f}s too short for {n} shots")
+    wsum = float(sum(weights))
+    seconds = [mins[i] + budget * weights[i] / wsum for i in range(n)]
+    for i in range(n - 1):
+        seconds[i] = round(seconds[i], 3)
+    seconds[-1] = round(total - sum(seconds[:-1]), 3)
+    return seconds
+
+
+def make_shots(text: str, seconds: float, visual: str, emphasis: str = "normal",
+               kind: str = "claim") -> list[dict[str, Any]]:
+    """Turn one narration beat into a deterministic, kind-aware shot plan."""
     duration = max(0.8, float(seconds))
     words = len(_tokens(text))
     policy = decision(kind, emphasis)
     if duration < 3.0 or words < 8:
-        return [{"id": "s1", "seconds": round(duration, 3), "visual": visual, "text": text, "mode": policy.mode}]
-    if visual in {"text", "claim", "quote"}:
-        modes = [(.42, visual, "establish"), (.34, visual, "punch"), (.24, visual, "hold")]
-    elif visual in {"counter", "stat"}:
-        modes = [(.36, visual, "count"), (.38, visual, "detail"), (.26, visual, "hold")]
-    elif visual in {"map", "timeline"}:
-        modes = [(.38, visual, "establish"), (.36, visual, "move"), (.26, visual, "hold")]
-    else:
-        modes = [(.50, visual, "establish"), (.30, visual, "punch"), (.20, visual, "hold")]
-    if emphasis == "high":
-        modes = [(.34, modes[0][1], modes[0][2]), (.36, modes[1][1], modes[1][2]), (.30, modes[2][1], modes[2][2])]
-    shots: list[dict[str, Any]] = []
-    used = 0.0
-    for i, (fraction, v, mode) in enumerate(modes):
-        s = duration * fraction if i < len(modes) - 1 else duration - used
-        s = max(.65, s) if i < len(modes) - 1 else s
-        used += s
-        shots.append({"id": f"s{i + 1}", "seconds": round(s, 3), "visual": v, "text": text, "mode": mode})
-    shots[-1]["seconds"] = round(duration - sum(float(s["seconds"]) for s in shots[:-1]), 3)
-    return shots
+        single_mode = "hold" if kind in {"thesis", "close"} else (
+            "punch" if emphasis == "high" else "establish")
+        return [{
+            "id": "s1", "seconds": round(duration, 3), "visual": visual,
+            "text": text, "mode": single_mode, "mode_max": policy.mode,
+        }]
+
+    pattern = _pattern(kind, emphasis, visual, duration)
+    n = len(pattern)
+    # Single-thought beats keep a short two-shot shape instead of a repetitive
+    # three-shot echo of the same sentence: open then hold, or punch then hold.
+    # Deliberate holds (thesis/close) and two-slot hooks keep their pattern.
+    if len(_clauses(text)) == 1 and kind not in {"thesis", "close", "hook"} and n > 2:
+        punches = [i for i, slot in enumerate(pattern) if slot["purpose"] == "punch"]
+        if punches and punches[-1] < n - 1:
+            pattern = [pattern[punches[-1]], pattern[-1]]
+        else:
+            pattern = [pattern[0], pattern[-1]]
+        n = 2
+
+    texts = _distribute_text(text, n)
+    weights = [int(slot["weight"]) for slot in pattern]
+    seconds_list = _seconds_for(weights, duration)
+    return [{
+        "id": f"s{i + 1}",
+        "seconds": seconds_list[i],
+        "visual": pattern[i]["visual"],
+        "text": texts[i],
+        "mode": pattern[i]["mode"],
+        "mode_max": policy.mode,
+    } for i in range(n)]
 
 
 def add_shots(beats: list[Any]) -> list[Any]:

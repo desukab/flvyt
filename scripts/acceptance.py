@@ -15,6 +15,7 @@ from engine.editorial import add_shots
 from engine.editorial_gate import raise_if_invalid
 from engine.project import Project
 from engine.quality import probe
+from engine.transitions import assign_transitions
 
 
 def make_tone(path: Path, seconds: float) -> None:
@@ -31,6 +32,7 @@ def main() -> int:
     project = Project.load(project_path)
     # Exercise the same executable shot grammar used by production builds.
     add_shots(project.beats)
+    assign_transitions(project.beats)
     raise_if_invalid(project.beats, fps=project.fps)
     runtime_project = ROOT / "out/acceptance/production_runtime.json"
     runtime_project.parent.mkdir(parents=True, exist_ok=True)

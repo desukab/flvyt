@@ -16,6 +16,7 @@ from engine.editorial import add_shots
 from engine.editorial_gate import raise_if_invalid
 from engine.project import Project
 from engine.timing import retime_project
+from engine.transitions import assign_transitions
 
 
 def run(cmd: list[str]) -> None:
@@ -27,6 +28,7 @@ def refresh_editorial_plan(path: Path) -> None:
     """Regenerate sentence-level shots after any timing mutation."""
     project = Project.load(path)
     add_shots(project.beats)
+    assign_transitions(project.beats)
     raise_if_invalid(project.beats, fps=project.fps)
     path.write_text(json.dumps(project.props(), indent=2, ensure_ascii=False), encoding="utf-8")
 
