@@ -46,6 +46,12 @@ GPS_SOURCES: list[dict] = [
 VISUAL_TAGS = {"stat", "geography", "timeline", "company", "person"}
 
 
+def _beat(text: str, seconds: float, visual: str, kind: str = "evidence"):
+    from engine.project import Beat
+    return Beat(id=f"t{kind}-{visual}", kind=kind, text=text, seconds=round(seconds, 2),
+                visual=visual, emphasis="high" if kind in {"hook", "thesis"} else "normal")
+
+
 def _research(*, topic: str = "The Hidden Infrastructure Behind GPS") -> dict:
     return {"topic": topic, "sources": [dict(s) for s in GPS_SOURCES]}
 
@@ -84,13 +90,15 @@ class FreshTopicDeterministicTests(unittest.TestCase):
             self.assertTrue(report["ok"], msg="\n".join(report["fails"]))
 
     def test_claims_stay_verbatim_and_bounded(self):
+        from engine import grounding
         from engine.grounding import extract
-        pack = extract(_research(), max_claim_chars=240)
+        pack = extract(_research())
+        cap = grounding.MAX_READABLE_CLAIM_CHARS
         materials = {s["url"]: s["text"] + " " + s["snippet"] for s in GPS_SOURCES}
         for item in pack["evidence"]:
             self.assertIn(item["claim"].rstrip(" ,;.") + ("'" if item["claim"].endswith("'") else ""),
                           materials[item["source"]])
-            self.assertLessEqual(len(item["claim"]), 240)
+            self.assertLessEqual(len(item["claim"]), cap)
             self.assertLessEqual(len(item["claim"]), len(materials[item["source"]]))
             self.assertIn(item["source"], {s["url"] for s in GPS_SOURCES})
 
@@ -140,6 +148,36 @@ class FreshTopicDeterministicTests(unittest.TestCase):
             run = run + 1 if visuals[i] == visuals[i - 1] else 1
             longest = max(longest, run)
         self.assertLess(longest, 4, msg=f"visual run of {longest}: {list(zip(visuals, range(len(visuals))))}")
+
+    def test_maxcap_claims_stay_within_density_and_duration_gates(self):
+        from engine import editorial, grounding
+        from engine.grounding import extract
+        from engine.story import read_need
+        long_text = (
+            "Modern aviation depends on a timing signal from space, and the airlines "
+            "that sequence crowded airports rely on that satellite clock, which is why "
+            "pilots, dispatchers, and the engineers who maintain the navigation "
+            "equipment treat the atomic reference as the hidden necessity behind every "
+            "flight.")
+        research = {"topic": "Aviation timing", "sources": [
+            {"title": "x", "url": "https://density.test/x", "snippet": "", "text": long_text}]}
+        pack = extract(research)
+        claim = pack["evidence"][0]["claim"]
+        self.assertGreaterEqual(len(claim), grounding.MAX_READABLE_CLAIM_CHARS - 40,
+                                "test needs a claim near the readable cap")
+        beats = [_beat(claim, max(4.0, read_need(claim)), visual) for visual in
+                 ("claim", "stat", "timeline", "map", "quote", "broll")]
+        beats.append(_beat(pack["thesis"], max(4.4, read_need(claim)), "quote", kind="thesis"))
+        beats.append(_beat(pack["thesis"], max(4.4, read_need(claim)), "broll", kind="close"))
+        editorial.add_shots(beats)
+        for beat in beats:
+            for shot in beat.shots:
+                self.assertLessEqual(shot["seconds"], 12.0,
+                                     msg=f"{beat.id}/{shot['id']} exceeds 12s")
+                density = len(shot["text"]) / shot["seconds"]
+                self.assertLessEqual(density, 16.0 + 1.5,
+                                     msg=f"{beat.id}/{shot['id']} {density:.1f} chars/s "
+                                         f"({len(shot['text'])} chars in {shot['seconds']}s)")
 
 
 if __name__ == "__main__":

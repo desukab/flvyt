@@ -183,7 +183,10 @@ def main() -> int:
     if not report.get("ok"):
         raise SystemExit("FLVYT delivery QA failed")
     if not editorial_qa.get("ok"):
-        raise SystemExit("FLVYT editorial quality QA failed")
+        detail = "; ".join("FAIL: %s" % f for f in (editorial_qa.get("fails") or [])[:8])
+        if editorial_qa.get("warns"):
+            detail += " | " + "; ".join("WARN: %s" % w for w in (editorial_qa.get("warns") or [])[:8])
+        raise SystemExit("FLVYT editorial quality QA failed\n- " + detail)
     if not frame_report.get("ok"):
         raise SystemExit("FLVYT frame-level QA failed")
     print(f"Rendered and QA-passed: {out}")

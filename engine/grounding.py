@@ -185,8 +185,16 @@ def _clip_claim(sentence: str, limit: int) -> str:
     return sentence[:cut + 1].strip() if cut >= 0 else sentence[:limit].rstrip(" ")
 
 
+# Deterministic verbatim claims must stay legible on screen: the editor sizes a
+# beat to PACING_MAX_SECONDS (13s), so a claim longer than this would either be
+# cut off mid-sentence or push shot density past the readable limit. 170 chars
+# keeps every planned shot under the density ceiling (16 chars/s) and every
+# shot within the 12s duration gate.
+MAX_READABLE_CLAIM_CHARS = 170
+
+
 def extract(research: dict[str, Any], *, max_items: int = 12,
-            max_claim_chars: int = 240,
+            max_claim_chars: int = MAX_READABLE_CLAIM_CHARS,
             section_size: int = 4) -> dict[str, Any]:
     """Build a verified evidence pack from researched source material.
 
