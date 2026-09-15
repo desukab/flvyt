@@ -89,11 +89,35 @@ jobs:
         run: npm install
       - name: Install FFmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
-      - name: Render verified long-form documentary
+      - name: Render verified TSMC documentary
         run: python scripts/acceptance.py projects/tsmc.generated.json --out out/acceptance/tsmc.mp4
-      - name: Upload long-form video
+      - name: Upload TSMC video
         uses: actions/upload-artifact@v4
         with:
           name: flvyt-tsmc-longform
           path: out/acceptance/tsmc.mp4
+          if-no-files-found: error
+
+  cables-acceptance:
+    runs-on: ubuntu-latest
+    needs: [python, remotion]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Node dependencies
+        run: npm install
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Render verified cables documentary
+        run: python scripts/acceptance.py projects/cables.generated.json --out out/acceptance/cables.mp4
+      - name: Upload cables video
+        uses: actions/upload-artifact@v4
+        with:
+          name: flvyt-cables-longform
+          path: out/acceptance/cables.mp4
           if-no-files-found: error
