@@ -30,10 +30,12 @@ class StoryPack:
     @classmethod
     def load(cls, path: str | Path) -> "StoryPack":
         data: dict[str, Any] = json.loads(Path(path).read_text(encoding="utf-8"))
+        allowed = set(Evidence.__dataclass_fields__)
         return cls(
             title=data["title"],
             thesis=data.get("thesis", ""),
-            evidence=[Evidence(**row) for row in data.get("evidence", [])],
+            evidence=[Evidence(**{k: v for k, v in row.items() if k in allowed})
+                      for row in data.get("evidence", [])],
         )
 
 

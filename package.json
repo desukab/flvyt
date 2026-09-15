@@ -4,6 +4,8 @@
   "version": "0.1.0",
   "description": "Automated faceless technology documentary video engine",
   "scripts": {
+    "flvyt": "python scripts/flvyt.py",
+    "doctor": "python scripts/flvyt.py doctor",
     "start": "remotion studio remotion/src/index.tsx",
     "build": "python scripts/build.py",
     "render": "python scripts/render.py projects/demo.json --out out/demo.mp4",

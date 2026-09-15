@@ -140,6 +140,9 @@ def main() -> int:
 
     report = probe(out)
     print(json.dumps(report, indent=2))
+    qa_out = ROOT / "out/qa.json"
+    qa_out.parent.mkdir(parents=True, exist_ok=True)
+    qa_out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     if not report.get("ok"):
         raise SystemExit("FLVYT delivery QA failed")
     print(f"Rendered and QA-passed: {out}")
