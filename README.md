@@ -185,9 +185,12 @@ FLVYT owns the **editorial intelligence**: research orchestration, grounding gat
 GitHub Actions validates both the Python layer and the Remotion/TypeScript layer on every push.
 
 ```bash
+npm run test
 npm run typecheck
 npm run python-check
 ```
+
+`scripts/acceptance.py` is the deterministic full-pipeline render gate: it generates per-beat narration with FFmpeg tones, retranscribes nothing, renders with the real Remotion composition, muxes audio and runs delivery QA. The `longform-acceptance` job additionally renders `projects/tsmc.generated.json`, a verified 3-minute-plus documentary fixture built from `projects/evidence.tsmc.json`, and uploads the resulting MP4 as a CI artifact. The evidence pack names only source pages (TSMC corporate pages and its authoritative Wikipedia article) and every claim is slotted into a narrative chapter; tests pin the runtime to the 3–5 minute window and re-validate the editorial gate on every push.
 
 ## Licensing
 

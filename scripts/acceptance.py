@@ -2,6 +2,7 @@
 """Run the deterministic production acceptance path with generated narration."""
 from __future__ import annotations
 
+import argparse
 import json
 import subprocess
 from pathlib import Path
@@ -27,8 +28,14 @@ def make_tone(path: Path, seconds: float) -> None:
     ], check=True)
 
 
-def main() -> int:
-    project_path = ROOT / "projects/production_acceptance.json"
+def main(argv: list[str] | None = None) -> int:
+    p = argparse.ArgumentParser(description="Run the deterministic production acceptance render")
+    p.add_argument("project", nargs="?", default="projects/production_acceptance.json")
+    p.add_argument("--out", default="out/acceptance/acceptance.mp4")
+    args = p.parse_args(argv)
+
+    project_path = ROOT / args.project if not Path(args.project).is_absolute() else Path(args.project)
+    out = ROOT / args.out if not Path(args.out).is_absolute() else Path(args.out)
     project = Project.load(project_path)
     # Exercise the same executable shot grammar used by production builds.
     add_shots(project.beats)

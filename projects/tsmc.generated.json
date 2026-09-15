@@ -1,0 +1,657 @@
+{
+  "title": "THE DEPENDENT MACHINE",
+  "subtitle": "",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "beats": [
+    {
+      "id": "hook",
+      "kind": "hook",
+      "text": "THE DEPENDENT MACHINE",
+      "seconds": 4.0,
+      "visual": "claim",
+      "emphasis": "high",
+      "label": "THE QUESTION"
+    },
+    {
+      "id": "context",
+      "kind": "context",
+      "text": "The answer sits inside a chain of specialized decisions and infrastructure.",
+      "seconds": 4.0,
+      "visual": "broll",
+      "emphasis": "normal",
+      "label": "THE SYSTEM"
+    },
+    {
+      "id": "e01",
+      "kind": "evidence",
+      "text": "TSMC was founded on February 21, 1987, as the world's first dedicated semiconductor foundry.",
+      "seconds": 4.0,
+      "visual": "timeline",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e02",
+      "kind": "evidence",
+      "text": "Founder Morris Chang created TSMC to commercialise semiconductor research developed at Taiwan's Industrial Technology Research Institute.",
+      "seconds": 4.0,
+      "visual": "portrait",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e03",
+      "kind": "evidence",
+      "text": "Philips invested 58 million US dollars and licenced its production technology in exchange for a 27.6 percent stake in the new company.",
+      "seconds": 4.0,
+      "visual": "stat",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e04",
+      "kind": "evidence",
+      "text": "The Taiwanese government provided nearly half of TSMC's startup capital through its National Development Fund.",
+      "seconds": 4.0,
+      "visual": "logo",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e05",
+      "kind": "evidence",
+      "text": "Texas Instruments and Intel both declined to build Taiwan's chip industry before the foundry was created.",
+      "seconds": 3.4,
+      "visual": "logo",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e06",
+      "kind": "evidence",
+      "text": "The foundry model separates chip design from fabrication, letting fabless design companies share advanced manufacturing capacity.",
+      "seconds": 4.0,
+      "visual": "logo",
+      "emphasis": "high",
+      "label": "PRIMARY",
+      "sources": [
+        "https://www.tsmc.com/english/aboutTSMC"
+      ]
+    },
+    {
+      "id": "e07",
+      "kind": "evidence",
+      "text": "TSMC's headquarters have sat in Hsinchu Science Park, Taiwan, since the company's founding.",
+      "seconds": 3.4,
+      "visual": "map",
+      "emphasis": "normal",
+      "label": "PRIMARY",
+      "sources": [
+        "https://www.tsmc.com/english/aboutTSMC"
+      ]
+    },
+    {
+      "id": "e08",
+      "kind": "evidence",
+      "text": "From 1994, TSMC grew revenue at a compound annual rate of about 17 percent for three decades.",
+      "seconds": 4.0,
+      "visual": "chart",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e09",
+      "kind": "evidence",
+      "text": "TSMC was the first foundry to bring 7-nanometre and then 5-nanometre chip production to market in volume.",
+      "seconds": 4.0,
+      "visual": "timeline",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e10",
+      "kind": "evidence",
+      "text": "TSMC's N7+ process was the first commercially available extreme-ultraviolet lithography in the semiconductor industry.",
+      "seconds": 4.0,
+      "visual": "timeline",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e11",
+      "kind": "evidence",
+      "text": "In late 2022 TSMC began volume production of 3-nanometre logic at Tainan, offering up to 70 percent higher logic density than 5 nanometre.",
+      "seconds": 4.0,
+      "visual": "timeline",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e12",
+      "kind": "evidence",
+      "text": "By late 2025 TSMC had moved to 2-nanometre production using gate-all-around nanosheet transistors, a shift away from FinFET designs.",
+      "seconds": 4.0,
+      "visual": "timeline",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e13",
+      "kind": "evidence",
+      "text": "The 2-nanometre node offers a 10 to 15 percent performance boost or a 25 to 30 percent power reduction over enhanced 3 nanometre.",
+      "seconds": 3.4,
+      "visual": "stat",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e14",
+      "kind": "evidence",
+      "text": "The 5-nanometre node doubled transistor density and added 15 percent performance over the preceding generation.",
+      "seconds": 3.4,
+      "visual": "stat",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e15",
+      "kind": "evidence",
+      "text": "TSMC today produces chips on node sizes from 2 micrometres down to 3 nanometres across its wafer fabrication network.",
+      "seconds": 3.4,
+      "visual": "stat",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e16",
+      "kind": "evidence",
+      "text": "TSMC was the first producer to run ASML's extreme-ultraviolet lithography machines at high volume.",
+      "seconds": 4.0,
+      "visual": "timeline",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e17",
+      "kind": "evidence",
+      "text": "In 2014 TSMC led the foundry industry in high-performance 28-nanometre production, drawing orders from Qualcomm, MediaTek and Apple.",
+      "seconds": 3.4,
+      "visual": "timeline",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e18",
+      "kind": "evidence",
+      "text": "TSMC holds a commanding majority of the global semiconductor foundry market, roughly 70 percent.",
+      "seconds": 4.0,
+      "visual": "chart",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e19",
+      "kind": "evidence",
+      "text": "In 2025 TSMC generated revenue of 122 billion US dollars, with net income of 55 billion.",
+      "seconds": 4.0,
+      "visual": "chart",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e20",
+      "kind": "evidence",
+      "text": "In 2023 TSMC earned net profit of about 838 billion Taiwan dollars on revenue above 2 trillion Taiwan dollars.",
+      "seconds": 4.0,
+      "visual": "stat",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e21",
+      "kind": "evidence",
+      "text": "TSMC serves as the main supplier for Apple, NVIDIA, Broadcom and Qualcomm.",
+      "seconds": 4.0,
+      "visual": "stat",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e22",
+      "kind": "evidence",
+      "text": "Most fabless chip companies, including AMD, ARM and MediaTek, have relied on TSMC's foundry services.",
+      "seconds": 3.4,
+      "visual": "logo",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e23",
+      "kind": "evidence",
+      "text": "Even integrated device makers such as Intel, NXP and Texas Instruments outsource some of their production to TSMC.",
+      "seconds": 3.4,
+      "visual": "logo",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e24",
+      "kind": "evidence",
+      "text": "TSMC is one of the world's largest non-US companies by market capitalisation.",
+      "seconds": 4.0,
+      "visual": "stat",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e25",
+      "kind": "evidence",
+      "text": "TSMC stock makes up about 30 percent of the Taiwan Stock Exchange's main index.",
+      "seconds": 3.4,
+      "visual": "chart",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e26",
+      "kind": "evidence",
+      "text": "TSMC's role as an AI supply-chain bottleneck means a single disruption could trigger another worldwide chip shortage.",
+      "seconds": 4.0,
+      "visual": "stat",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e27",
+      "kind": "evidence",
+      "text": "The company's growth since 2023 has been driven by the artificial intelligence boom and its role in the advanced chips AI needs.",
+      "seconds": 4.0,
+      "visual": "logo",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e28",
+      "kind": "evidence",
+      "text": "In 2024 the United States was TSMC's largest market, nearly 69 percent of sales.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e29",
+      "kind": "evidence",
+      "text": "TSMC raised its 2026 capital expenditure forecast to between 60 and 64 billion US dollars on strong AI chip demand.",
+      "seconds": 4.0,
+      "visual": "chart",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e30",
+      "kind": "evidence",
+      "text": "Second-quarter 2026 profit rose 77 percent year on year, a record driven by demand for artificial-intelligence chips.",
+      "seconds": 3.4,
+      "visual": "stat",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e31",
+      "kind": "evidence",
+      "text": "In 2020 TSMC announced a 12 billion US dollar fab in Phoenix, Arizona, at the time the most advanced fab in the United States.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e32",
+      "kind": "evidence",
+      "text": "In December 2022 TSMC said it would triple its Arizona investment to about 40 billion US dollars across three plants.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e33",
+      "kind": "evidence",
+      "text": "In April 2024 the Biden administration preliminarily agreed to award up to 6.6 billion US dollars for TSMC's Arizona expansion under the CHIPS and Science Act.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e34",
+      "kind": "evidence",
+      "text": "In November 2024 the US Commerce Department finalised the 6.6 billion US dollar CHIPS award, the first major award under the 52.7 billion programme.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e35",
+      "kind": "evidence",
+      "text": "By 2026 TSMC had raised total planned US investment to 265 billion US dollars across up to twelve Arizona fabrication and packaging facilities.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e36",
+      "kind": "evidence",
+      "text": "TSMC's first Phoenix fab, Fab 21, is operational, with the rest of the Arizona cluster under construction.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e37",
+      "kind": "evidence",
+      "text": "In November 2021 TSMC and Sony formed Japan Advanced Semiconductor Manufacturing to build a fab in Kumamoto; Denso joined the venture in 2022.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e38",
+      "kind": "evidence",
+      "text": "JASM's Kumamoto fab began commercial operations in December 2024 after roughly 8.6 billion US dollars in capital spending.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e39",
+      "kind": "evidence",
+      "text": "In August 2023 TSMC committed 3.5 billion euros to a 10 billion-plus euro Dresden fab with Bosch, Infineon and NXP, subsidised with 5 billion euros by Germany.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e40",
+      "kind": "evidence",
+      "text": "The Dresden joint venture, ESMC, plans production across 28-nanometre and 12/16-nanometre capacity.",
+      "seconds": 3.4,
+      "visual": "map",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e41",
+      "kind": "evidence",
+      "text": "Taiwan's integrated circuit exports reached 184 billion US dollars in 2022, nearly 25 percent of the island's GDP.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e42",
+      "kind": "evidence",
+      "text": "Because leading-edge fabrication is so concentrated in Taiwan, a disruption there could cause another worldwide chip shortage.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e43",
+      "kind": "evidence",
+      "text": "In 2017 TSMC invested 3 billion US dollars in Nanjing to build manufacturing capacity in mainland China.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e44",
+      "kind": "evidence",
+      "text": "TSMC halted silicon wafer shipments to Huawei and HiSilicon in September 2020 in response to US export controls.",
+      "seconds": 4.0,
+      "visual": "timeline",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e45",
+      "kind": "evidence",
+      "text": "In October 2024 TSMC reported to the US Commerce Department a potential export-control breach involving one of its most advanced chips.",
+      "seconds": 3.4,
+      "visual": "logo",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e46",
+      "kind": "evidence",
+      "text": "To hedge against conflict risk, TSMC expanded into Japan, the United States and Germany from the 2020s onward.",
+      "seconds": 4.0,
+      "visual": "map",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e47",
+      "kind": "evidence",
+      "text": "Japan, the United States and Germany each agreed state subsidies to attract new TSMC fabs.",
+      "seconds": 3.4,
+      "visual": "map",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e48",
+      "kind": "evidence",
+      "text": "TSMC said US construction costs ran four to five times an identical plant in Taiwan, making US-made chips at least 50 percent more expensive.",
+      "seconds": 4.0,
+      "visual": "stat",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e49",
+      "kind": "evidence",
+      "text": "TSMC employs more than 83,000 people and operates fabrication facilities on three continents.",
+      "seconds": 4.0,
+      "visual": "stat",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e50",
+      "kind": "evidence",
+      "text": "TSMC was the first semiconductor company to join the RE100 initiative, pledging to power all global operations with 100 percent renewable energy by 2050.",
+      "seconds": 4.0,
+      "visual": "timeline",
+      "emphasis": "high",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "e51",
+      "kind": "evidence",
+      "text": "TSMC pledged net-zero emissions by 2050 and recycles more than 85 percent of the water used in fabrication.",
+      "seconds": 3.4,
+      "visual": "stat",
+      "emphasis": "normal",
+      "label": "ARTICLE",
+      "sources": [
+        "https://en.wikipedia.org/wiki/TSMC"
+      ]
+    },
+    {
+      "id": "implication",
+      "kind": "implication",
+      "text": "The important detail is not any single company or machine; it is the dependency between them.",
+      "seconds": 4.2,
+      "visual": "map",
+      "emphasis": "normal",
+      "label": "THE CONNECTION"
+    },
+    {
+      "id": "thesis",
+      "kind": "thesis",
+      "text": "THE DEPENDENT MACHINE",
+      "seconds": 4.4,
+      "visual": "quote",
+      "emphasis": "high",
+      "label": "THE THESIS"
+    }
+  ]
+}

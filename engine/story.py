@@ -19,6 +19,7 @@ class Evidence:
     source_type: str = "article"
     importance: str = "normal"
     tags: list[str] | None = None
+    slot: int | None = None
 
 
 @dataclass
@@ -65,8 +66,19 @@ def _visual_for_evidence(ev: Evidence) -> str:
 
 
 def build_beats(pack: StoryPack) -> list[dict[str, Any]]:
-    """Create a restrained hook → context → evidence → implication → thesis arc."""
-    rows = sorted(pack.evidence, key=lambda x: (x.importance != "high", x.id))
+    """Create a restrained hook → context → evidence → implication → thesis arc.
+
+    Evidence follows the optional explicit `slot` order when provided, so a
+    long documentary can follow chapters instead of importance sorting.
+    """
+    rows = sorted(
+        pack.evidence,
+        key=lambda x: (
+            x.slot if x.slot is not None else 10**9,
+            x.importance != "high",
+            x.id,
+        ),
+    )
     beats: list[dict[str, Any]] = [{
         "id": "hook", "kind": "hook", "text": pack.thesis or pack.title,
         "seconds": 4.0, "visual": "claim", "emphasis": "high", "label": "THE QUESTION",

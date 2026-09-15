@@ -115,6 +115,38 @@ class DeterminismTests(unittest.TestCase):
         self.assertEqual(a, b)
 
 
+class StorySlotOrderingTests(unittest.TestCase):
+    def _pack(self):
+        from engine.story import Evidence, StoryPack
+        return StoryPack(
+            title="T", thesis="S",
+            evidence=[
+                Evidence(id="later", claim="After", source="https://x", slot=9),
+                Evidence(id="first", claim="Before", source="https://x", slot=1),
+                Evidence(id="no_slot", claim="Fallback", source="https://x"),
+            ],
+        )
+
+    def test_slotted_evidence_orders_the_arc(self):
+        from engine.story import build_beats
+        beats = build_beats(self._pack())
+        evidence = [b for b in beats if b["kind"] == "evidence"]
+        self.assertEqual([b["text"] for b in evidence], ["Before", "After", "Fallback"])
+
+    def test_unslotted_packs_keep_importance_order(self):
+        from engine.story import Evidence, StoryPack, build_beats
+        pack = StoryPack(
+            title="T", thesis="S",
+            evidence=[
+                Evidence(id="a", claim="A", source="https://x", importance="normal"),
+                Evidence(id="b", claim="B", source="https://x", importance="high"),
+            ],
+        )
+        beats = build_beats(pack)
+        evidence = [b for b in beats if b["kind"] == "evidence"]
+        self.assertEqual([b["text"] for b in evidence], ["B", "A"])
+
+
 class GateIntegrationTests(unittest.TestCase):
     def build_arc(self):
         kinds = ["hook", "context", "evidence", "implication", "thesis", "close"]
