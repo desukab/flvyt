@@ -143,15 +143,15 @@ def main() -> int:
         else:
             final = with_audio
         final.replace(out)
+        narration_info = narration and {"wav": str(narration)}
+        caption_info = (srt is not None and srt.exists() and {"srt": str(srt)}) or (
+            args.transcript and {"transcript": args.transcript})
 
     report = probe(out)
     print(json.dumps(report, indent=2))
     qa_out = ROOT / "out/qa.json"
     qa_out.parent.mkdir(parents=True, exist_ok=True)
     qa_out.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
-    narration_info = narration and {"wav": str(narration)}
-    caption_info = (srt.exists() and {"srt": str(srt)}) or (
-        args.transcript and {"transcript": args.transcript})
     write_manifest(
         project_path, ROOT / "out/manifest.json", report, editorial_qa,
         root=ROOT,
