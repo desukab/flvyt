@@ -76,7 +76,7 @@ def _find_narration(project_path: Path, root: Path) -> Path | None:
     if manifest.exists():
         data = json.loads(manifest.read_text(encoding="utf-8"))
         project = Project.load(project_path)
-        beats_data = [b for b in project.props()["beats"] if str(b["id"]) in data]
+        beats_data = project.props()["beats"]
         if beats_data:
             return assemble_narration(beats_data, data, root / "out/narration/master.wav", cwd=root)
     for path in candidates:

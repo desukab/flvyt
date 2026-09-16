@@ -43,6 +43,11 @@ def main(argv: list[str] | None = None) -> int:
     raise_if_invalid(project.beats, fps=project.fps)
     # The tones below are authored to each beat's seconds, so the picture must
     # follow those exact durations instead of re-flooring to a reading rate.
+    # Floor the fixture's own durations to the readability budget here so the
+    # editorial density gate sees real-time card text.
+    from engine.story import read_need
+    for beat in project.beats:
+        beat.seconds = round(max(float(beat.seconds), read_need(beat.text)), 2)
     project.timed_by_audio = True
     runtime_project = ROOT / "out/acceptance/production_runtime.json"
     runtime_project.parent.mkdir(parents=True, exist_ok=True)

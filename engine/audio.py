@@ -87,25 +87,37 @@ def assemble_narration(beats: list[dict[str, Any]], manifest: dict[str, str],
     audio and picture can never drift once both are derived from the clips.
     A lead-in matching the title card widths the master to the picture, so the
     narration starts on the first beat instead of playing over the intro.
+    A beat with no clip in the manifest holds its reserved screen time as
+    silence, so the master always equals the picture even if one clip is lost.
     """
     from .project import INTRO_SECONDS
     root = Path(cwd) if cwd else Path.cwd()
-    paths: list[Path] = []
+    clips: list[Path] = []
     pads: list[float] = []
+    silent: dict[float, Path] = {}
     for beat in beats:
+        reserved = max(0.5, float(beat.get("seconds", 0) or 0))
         audio = manifest.get(str(beat.get("id")))
-        if not audio:
-            continue
-        path = Path(audio)
-        if not path.is_absolute():
-            candidate = root / path
+        path: Path | None = None
+        if audio:
+            candidate = Path(audio)
+            if not candidate.is_absolute():
+                probe = root / candidate
+                if probe.exists():
+                    candidate = probe
+            if not candidate.exists():
+                candidate = Path.cwd() / candidate
             if candidate.exists():
                 path = candidate
-        if not path.exists():
-            path = Path.cwd() / path
-        paths.append(path)
-        pads.append(float(beat.get("pad_after", 0) or 0))
-    return concat_wavs(paths, output, tail_pads=pads, lead_in=INTRO_SECONDS)
+        if path is None:
+            if reserved not in silent:
+                silent[reserved] = _silence_bank(root, reserved)
+            clips.append(silent[reserved])
+            pads.append(0.0)
+        else:
+            clips.append(path)
+            pads.append(float(beat.get("pad_after", 0) or 0))
+    return concat_wavs(clips, output, tail_pads=pads, lead_in=INTRO_SECONDS)
 
 
 def mix(narration: str | Path, music: str | Path | None, output: str | Path,

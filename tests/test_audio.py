@@ -75,6 +75,20 @@ class AudioAssemblyTests(unittest.TestCase):
             out = concat_wavs([a], root / "master.wav", lead_in=5.0)
             self.assertAlmostEqual(duration(out), 5.5, delta=0.05)
 
+    def test_assemble_holds_silence_for_missing_clip(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            beats = [
+                {"id": "b1", "pad_after": 0.2, "seconds": 0.7},
+                {"id": "b2", "pad_after": 0.0, "seconds": 3.0},
+            ]
+            manifest = {"b1": str(root / "b1.wav")}
+            make_tone(root / "b1.wav", 0.5)
+            out = assemble_narration(beats, manifest, root / "master.wav", cwd=root)
+            from engine.project import INTRO_SECONDS
+            expected = INTRO_SECONDS + 0.5 + 0.2 + 3.0
+            self.assertAlmostEqual(duration(out), expected, delta=0.1)
+
     def test_empty_paths_raises(self):
         with tempfile.TemporaryDirectory() as td:
             with self.assertRaises(ValueError):

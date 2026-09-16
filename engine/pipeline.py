@@ -246,7 +246,7 @@ def produce(source: str | None = None, *, topic: str | None = None,
         run_stage("narration", cmd, [project], str(manifest_file))
 
         def finish_narration() -> None:
-            from engine.audio import assemble_narration
+            from engine.audio import assemble_narration, duration as wav_duration
             from engine.timing import retime_project
             if manifest_file.exists():
                 retime_project(project, manifest_file)
@@ -256,6 +256,30 @@ def produce(source: str | None = None, *, topic: str | None = None,
                 if any(str(b["id"]) in manifest_data for b in beats_data):
                     assemble_narration(beats_data, manifest_data,
                                        WORK / "narration/master.wav", cwd=ROOT)
+                rows = []
+                for beat in beats_data:
+                    audio = manifest_data.get(str(beat["id"]))
+                    wav = None
+                    if audio:
+                        candidate = Path(audio)
+                        if not candidate.is_absolute():
+                            candidate = ROOT / candidate
+                        if candidate.exists():
+                            wav = wav_duration(candidate)
+                    rows.append({
+                        "id": beat["id"],
+                        "seconds": round(float(beat.get("seconds", 0) or 0), 3),
+                        "pad_after": round(float(beat.get("pad_after", 0) or 0), 3),
+                        "wav": round(wav, 3) if wav else None,
+                        "drift": round(float(beat.get("seconds", 0) or 0) - (wav or 0)
+                                       - float(beat.get("pad_after", 0) or 0), 3)
+                        if wav else None,
+                    })
+                report_path = WORK / "narration/timing_report.json"
+                report_path.write_text(json.dumps({"beats": rows}, indent=2), encoding="utf-8")
+                missing = [r["id"] for r in rows if r["wav"] is None]
+                print(f"[timing] master alignment: {len(rows) - len(missing)}/{len(rows)} beats voiced; "
+                      f"missing={missing or 'none'}", flush=True)
 
         run_stage("narrplan", ["in-process", "finish_narration", str(project)],
                   [project, manifest_file], master, work=finish_narration)
