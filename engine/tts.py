@@ -12,6 +12,31 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+# Named voice slots. Anything local and consenting works; the value is an
+# executable template using {model} and {output}, piped text on stdin.
+VOICES: dict[str, str] = {
+    "espeak": "espeak-ng -w {output}",
+    "piper": "piper --model {model} --output_file {output}",
+}
+
+
+def voice_command(name: str, model: str | None = None) -> str:
+    """Resolve a named voice slot to a command template.
+
+    `name` may be a registered key or a literal command template, so existing
+    callers keep working while new backends stay one line away.
+    """
+    template = VOICES.get(name, name)
+    if not template:
+        raise ValueError("voice slot is empty; pass a template or a known name")
+    # Validate eagerly: the template must leave an output path placeholder and
+    # must not introduce placeholders besides the two we can fill.
+    try:
+        template.format(model=model or "", output="X")
+    except (KeyError, IndexError) as exc:
+        raise ValueError(f"bad voice command template: {exc}") from exc
+    return VOICES[name] if name in VOICES else name
+
 
 def synthesize(text: str, output: str | Path, command: str,
                model: str | None = None) -> Path:

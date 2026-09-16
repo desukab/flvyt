@@ -1,6 +1,6 @@
 import React from 'react';
 import {AbsoluteFill, Easing, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
-import {Visual} from './Visuals';
+import {Visual, hashStr, MotifLayer, chapterField} from './Visuals';
 
 export type DocumentaryShot = {
   id: string;
@@ -25,6 +25,9 @@ export type DocumentaryBeat = {
   unit?: string;
   sources?: string[];
   shots?: DocumentaryShot[];
+  motif?: string;
+  intent?: string;
+  chapter?: number;
 };
 
 export type DocumentaryProps = {
@@ -43,15 +46,46 @@ type Segment = {
   end: number;
 };
 
-const Background: React.FC = () => {
+const Background: React.FC<{chapter?: number}> = ({chapter}) => {
   const frame = useCurrentFrame();
-  const drift = interpolate(frame, [0, 9000], [0, -180], {extrapolateRight: 'clamp'});
+  const f = chapterField(chapter);
+  const drift = interpolate(frame, [0, 9000], [0, -150], {extrapolateRight: 'clamp'});
   return (
-    <AbsoluteFill style={{background: '#070b10', overflow: 'hidden'}}>
-      <div style={{position: 'absolute', inset: -180, transform: `translate3d(${drift}px,${drift * 0.35}px,0)`, background: 'radial-gradient(circle at 20% 30%,rgba(70,130,180,.22),transparent 34%),radial-gradient(circle at 80% 65%,rgba(160,80,210,.18),transparent 30%)'}} />
-      <div style={{position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px)', backgroundSize: '80px 80px', opacity: 0.35}} />
+    <AbsoluteFill style={{background: f.bg, overflow: 'hidden'}}>
+      <div style={{position: 'absolute', inset: -180, transform: `translate3d(${drift}px,${drift * 0.38}px,0)`, background: f.glows.join(',')}} />
+      <div style={{position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px)', backgroundSize: `${f.grid}px ${f.grid}px`, opacity: 0.38}} />
       <div style={{position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center,transparent 35%,rgba(0,0,0,.72) 100%)'}} />
     </AbsoluteFill>
+  );
+};
+
+/** Slow-drifting scene container: background + motif drift behind the text card,
+ * so every frame within a shot differs and consecutive shots have a visible
+ * compositional shift. This is the "camerawork" layer. */
+const Scene: React.FC<{beat: DocumentaryBeat; shot: DocumentaryShot; local: number; shotFrames: number; children?: React.ReactNode}> = ({beat, shot, local, shotFrames, children}) => {
+  const {fps} = useVideoConfig();
+  const seed = hashStr(`${beat.id}|${shot.id}`);
+  const push = seed < 0.48;
+  const s0 = push ? 1.03 : 1.16;
+  const s1 = push ? 1.16 : 1.03;
+  const camScale = interpolate(local, [0, Math.max(1, shotFrames)], [s0, s1], {extrapolateRight: 'clamp'});
+  const panX = interpolate(local, [0, Math.max(1, shotFrames)],
+    [seed * 80 - 20, seed * 80 - 20 + (push ? 64 : -64)],
+    {extrapolateRight: 'clamp'});
+  const panY = interpolate(local, [0, Math.max(1, shotFrames)],
+    [(seed * 54) % 30 - 15, (seed * 54) % 30 - 15 + (push ? 30 : -24)],
+    {extrapolateRight: 'clamp'});
+  const field = chapterField(beat.chapter ?? 0);
+  return (
+    <div style={{position: 'absolute', inset: -260}}>
+      <div style={{position: 'absolute', inset: 0, transform: `scale(${camScale}) translate3d(${panX}px,${panY}px,0)`, transformOrigin: '50% 50%'}}>
+        <div style={{position: 'absolute', left: 260, top: 260, right: 260, bottom: 260}}>
+          <Background chapter={beat.chapter} />
+          <MotifLayer motif={beat.motif} accent={field.accent} chapter={beat.chapter} />
+        </div>
+      </div>
+      {children}
+    </div>
   );
 };
 
@@ -93,15 +127,18 @@ const ShotContent: React.FC<{
   const outro = Math.max(0, shotFrames - 18);
   const outP = interpolate(local, [outro, outro + 18], [1, 0], {extrapolateLeft: 'clamp', extrapolateRight: 'clamp'});
   const opacity = forcedOpacity === undefined ? opacityIn * outP : forcedOpacity;
+  const variant = Math.floor(hashStr(`${beat.id}|${shot.id}|v`) * 4);
   return (
     <AbsoluteFill style={{opacity}}>
+      <Scene beat={beat} shot={shot} local={local} shotFrames={shotFrames}>
+        <div style={{position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `translateX(${x}px)`}}>
+          <Visual {...beat} visual={shot.visual} text={shot.text} variant={variant} />
+        </div>
+      </Scene>
       <div style={{position: 'absolute', top: 62, left: 80, right: 80, display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
         <div style={{fontSize: 20, letterSpacing: 5, color: 'rgba(255,255,255,.48)'}}>{String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</div>
         <div style={{fontSize: 20, letterSpacing: 4, color: 'rgba(255,255,255,.42)', textTransform: 'uppercase'}}>{beat.label || shot.visual}</div>
       </div>
-      <AbsoluteFill style={{display: 'flex', alignItems: 'center', justifyContent: 'center', transform: `translateX(${x}px)`}}>
-        <Visual {...beat} visual={shot.visual} text={shot.text} />
-      </AbsoluteFill>
       <div style={{position: 'absolute', left: 80, right: 80, bottom: 35, height: 2, background: 'rgba(255,255,255,.12)'}}>
         <div style={{height: '100%', width: `${Math.min(100, (Math.max(0, local) / Math.max(1, shotFrames)) * 100)}%`, background: 'rgba(255,255,255,.72)'}} />
       </div>
@@ -166,7 +203,6 @@ export const Documentary: React.FC<DocumentaryProps> = ({title, subtitle, beats}
   if (!inTransition) {
     return (
       <AbsoluteFill style={{fontFamily: 'Arial,Helvetica,sans-serif', color: 'white'}}>
-        <Background />
         {renderSegment(seg, frame - seg.start, undefined, idx)}
       </AbsoluteFill>
     );
@@ -179,7 +215,6 @@ export const Documentary: React.FC<DocumentaryProps> = ({title, subtitle, beats}
     const inOpacity = interpolate(t, [0, 1], [0, 1]);
     return (
       <AbsoluteFill style={{fontFamily: 'Arial,Helvetica,sans-serif', color: 'white'}}>
-        <Background />
         {renderSegment(prev, frame - prev.start, outOpacity, idx - 1)}
         {renderSegment(seg, frame - seg.start, inOpacity, idx)}
       </AbsoluteFill>
@@ -191,7 +226,6 @@ export const Documentary: React.FC<DocumentaryProps> = ({title, subtitle, beats}
     const outOpacity = interpolate(t, [0, 0.5], [1, 0], {extrapolateRight: 'clamp'});
     return (
       <AbsoluteFill style={{fontFamily: 'Arial,Helvetica,sans-serif', color: 'white'}}>
-        <Background />
         {renderSegment(prev, frame - prev.start, outOpacity, idx - 1)}
         <AbsoluteFill style={{background: '#000', opacity: interpolate(t, [0, 0.5], [0, 1], {extrapolateRight: 'clamp'})}} />
       </AbsoluteFill>
@@ -200,7 +234,6 @@ export const Documentary: React.FC<DocumentaryProps> = ({title, subtitle, beats}
   const inOpacity = interpolate(t, [0.5, 1], [0, 1], {extrapolateLeft: 'clamp'});
   return (
     <AbsoluteFill style={{fontFamily: 'Arial,Helvetica,sans-serif', color: 'white'}}>
-      <Background />
       <AbsoluteFill style={{background: '#000', opacity: interpolate(t, [0.5, 1], [1, 0], {extrapolateLeft: 'clamp'})}} />
       <AbsoluteFill style={{opacity: inOpacity}}>
         {renderSegment(seg, frame - seg.start, undefined, idx)}

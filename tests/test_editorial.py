@@ -205,5 +205,41 @@ class GateIntegrationTests(unittest.TestCase):
                                total, places=2)
 
 
+class AudioTruthTests(unittest.TestCase):
+    """Beats timed from actual narration must never be re-floored to a
+    reading-rate estimate, or the picture stretches past the voice and leaves
+    a silent tail."""
+
+    def _beat(self, text: str, seconds: float, kind: str = "evidence") -> Beat:
+        return Beat(id="b1", kind=kind, text=text, seconds=seconds, visual="claim",
+                    emphasis="normal", chapter=2, intent="detail", motif="wave")
+
+    def test_audio_timed_seconds_are_preserved(self):
+        from engine.director import direct
+        text = "A deliberately long sentence that a sixteen-characters-per-second reader would need several seconds to finish comfortably."
+        project = Project("T", "S", 30, 1920, 1080, [self._beat(text, 1.9)],
+                          timed_by_audio=True)
+        directed = direct(project)
+        self.assertEqual(directed.beats[0].seconds, 1.9)
+        self.assertTrue(directed.timed_by_audio)
+
+    def test_non_narrated_project_keeps_readability_floor(self):
+        from engine.director import direct
+        from engine.story import read_need
+        text = "A deliberately long sentence that a sixteen-characters-per-second reader would need several seconds to finish comfortably."
+        project = Project("T", "S", 30, 1920, 1080, [self._beat(text, 1.9)])
+        directed = direct(project)
+        self.assertGreaterEqual(directed.beats[0].seconds, read_need(text))
+
+    def test_director_preserves_editorial_fields(self):
+        from engine.director import direct
+        project = Project("T", "S", 30, 1920, 1080, [self._beat("Short.", 2.5)])
+        directed = direct(project)
+        beat = directed.beats[0]
+        self.assertEqual(beat.chapter, 2)
+        self.assertEqual(beat.intent, "detail")
+        self.assertEqual(beat.motif, "wave")
+
+
 if __name__ == "__main__":
     unittest.main()

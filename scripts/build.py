@@ -14,12 +14,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 from engine.pipeline import produce, StageFailed
+from engine.tts import voice_command
 
 p = argparse.ArgumentParser(description="Production FLVYT research/evidence-to-video build")
 p.add_argument("input", nargs="?", help="Research JSON, evidence JSON or ready project JSON")
 p.add_argument("--topic", help="Documentary topic; triggers research and grounding")
 p.add_argument("--out", default="out/final.mp4")
 p.add_argument("--tts-command", default=os.environ.get("FLVYT_TTS_COMMAND"), help="Local TTS command template")
+p.add_argument("--voice", default=os.environ.get("FLVYT_TTS_VOICE", "espeak"),
+               help="Named voice slot: espeak, piper, or a command template")
 p.add_argument("--tts-model", default=os.environ.get("FLVYT_TTS_MODEL"))
 p.add_argument("--music")
 p.add_argument("--assets", default="assets/registry.json", help="License-cleared asset registry")
@@ -36,7 +39,7 @@ try:
         args.input,
         topic=args.topic,
         out=args.out,
-        tts_command=args.tts_command,
+        tts_command=args.tts_command or voice_command(args.voice, args.tts_model),
         tts_model=args.tts_model,
         music=args.music,
         assets=args.assets,

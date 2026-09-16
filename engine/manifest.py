@@ -77,7 +77,9 @@ def write_manifest(project_path: str | Path, out_path: str | Path,
                    captions: dict[str, Any] | None = None,
                    assets: dict[str, Any] | None = None,
                    frameqa: dict[str, Any] | None = None,
-                   render: dict[str, Any] | None = None) -> Path:
+                   render: dict[str, Any] | None = None,
+                   edit_qa: dict[str, Any] | None = None,
+                   music: dict[str, Any] | None = None) -> Path:
     """Assemble and write out/manifest.json for a completed build."""
     root = Path(root) if root else Path(__file__).resolve().parents[1]
     project = json.loads(Path(project_path).read_text(encoding="utf-8"))
@@ -95,11 +97,13 @@ def write_manifest(project_path: str | Path, out_path: str | Path,
         },
         "assets": _registry_assets(project_path, root),
         "narration": narration or {},
+        "music": music or {},
         "captions": captions or {},
         "qa": {
             "delivery": delivery_qa,
             "editorial": editorial_qa,
             "frame": frameqa or {},
+            "edit": edit_qa or {},
         },
     }
     path = Path(out_path)

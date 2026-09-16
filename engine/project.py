@@ -26,6 +26,10 @@ class Beat:
     sources: list[str] = field(default_factory=list)
     shots: list[dict[str, Any]] = field(default_factory=list)
     pad_after: float = 0.0
+    chapter: int | None = None
+    intent: str | None = None
+    motif: str | None = None
+    tags: list[str] | None = None
 
 
 @dataclass
@@ -36,6 +40,7 @@ class Project:
     width: int = 1920
     height: int = 1080
     beats: list[Beat] | None = None
+    timed_by_audio: bool = False
 
     @classmethod
     def load(cls, path: str | Path) -> "Project":
@@ -46,6 +51,7 @@ class Project:
             title=data["title"], subtitle=data.get("subtitle", ""),
             fps=int(data.get("fps", 30)), width=int(data.get("width", 1920)),
             height=int(data.get("height", 1080)), beats=beats,
+            timed_by_audio=bool(data.get("timed_by_audio", False)),
         )
 
     def props(self) -> dict[str, Any]:

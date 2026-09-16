@@ -13,7 +13,8 @@ sys.path.insert(0, str(ROOT))
 from engine.audio import assemble_narration, mix
 from engine.director import direct
 from engine.project import Project
-from engine.quality import probe, probe_frames
+from engine.quality import probe, probe_frames, probe_delivery
+from engine.score import render_bed
 from engine.captions import words_to_srt
 from engine.editorial_quality import report_to_path as editorial_report_to_path
 from engine.manifest import write_manifest
@@ -129,13 +130,21 @@ def main() -> int:
         narration = Path(args.narration) if args.narration else _find_narration(project_path, ROOT)
         if narration and not narration.is_absolute():
             narration = ROOT / narration
+        music_info: dict | None = None
         music = Path(args.music) if args.music else _find_music(ROOT)
         if music and not music.is_absolute():
             music = ROOT / music
+        if not music and narration:
+            total = sum(float(b.get("seconds") or 0) for b in project.props()["beats"])
+            if total <= 0:
+                total = project.duration_frames() / max(float(project.fps or 30), 1)
+            music_info = render_bed(total, project.props()["beats"], work / "bed.wav")
+            music = Path(music_info["wav"])
         if narration:
             mix(narration, music, audio_mix)
             _ffmpeg_audio(rendered, audio_mix, with_audio)
         else:
+            music = None
             _ffmpeg_audio(rendered, None, with_audio)
 
         srt = Path(args.srt) if args.srt else None
@@ -162,11 +171,17 @@ def main() -> int:
     frame_report = probe_frames(out)
     print("Frame QA:", json.dumps(
         {"ok": frame_report["ok"], "fails": frame_report["fails"]}))
+    delivery = probe_delivery(out, expect_narration=narration is not None)
+    print("Delivery QA:", json.dumps(
+        {"ok": delivery["ok"], "fails": delivery["fails"]}))
     qa_out = ROOT / "out/qa.json"
     qa_out.parent.mkdir(parents=True, exist_ok=True)
     qa_out.write_text(json.dumps(
-        {"ok": bool(report.get("ok") and editorial_qa.get("ok") and frame_report.get("ok")),
-         "ffprobe": report, "signalstats": frame_report},
+        {"ok": bool(report.get("ok") and editorial_qa.get("ok")
+                  and frame_report.get("ok") and delivery.get("ok")),
+         "ffprobe": report, "signalstats": frame_report,
+         "delivery": {k: v for k, v in delivery.items()
+                      if k not in {"fails", "warns", "ok"}}},
         indent=2, ensure_ascii=False), encoding="utf-8")
     write_manifest(
         project_path, ROOT / "out/manifest.json", report, editorial_qa,
@@ -179,6 +194,9 @@ def main() -> int:
             "frames": frames, "out": str(out),
         },
         frameqa=frame_report,
+        edit_qa={k: v for k, v in delivery.items()
+                 if k not in {"fails", "warns", "ok"}},
+        music=music_info or {},
     )
     if not report.get("ok"):
         raise SystemExit("FLVYT delivery QA failed")
@@ -189,6 +207,8 @@ def main() -> int:
         raise SystemExit("FLVYT editorial quality QA failed\n- " + detail)
     if not frame_report.get("ok"):
         raise SystemExit("FLVYT frame-level QA failed")
+    if not delivery.get("ok"):
+        raise SystemExit("FLVYT delivery edit QA failed\n- " + "\n- ".join((delivery.get("fails") or [])[:8]))
     print(f"Rendered and QA-passed: {out}")
     return 0
 

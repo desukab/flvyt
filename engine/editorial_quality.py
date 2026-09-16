@@ -41,6 +41,9 @@ NEAR_DUP_OVERLAP = 0.85
 MIN_NONCUTS_BEFORE_CHAPTER_WARN = 3
 CHAPTER_GAP_WARN_SECONDS = 150.0
 ASSET_OVERUSE = 4
+DECORATIVE_SHARE_WARN = 0.15
+DECORATIVE_SHARE_FAIL = 0.30
+GENERIC_RUN_FAIL = 3
 MAX_CAPTION_CUES_PER_MINUTE = 14
 MAX_CAPTION_CUE_SECONDS = 5.0
 MIN_NARRATION_COVERAGE = 0.5
@@ -204,23 +207,33 @@ def analyze(project_path: str | Path, manifest_path: str | Path | None = None,
         f"= 0", len(near) == 0, " vs ".join(near[:6]) or "none")
 
     # --- Visual variety and montage streaks ---------------------------------
+    # A shot's *visual reason* is its (visual family, content-anchored motif,
+    # intent) triple. Two claims in a row are not a stutter: the renderer breaks
+    # the family with the beat's motif field and the shot's layout sub-variant.
+    # A run becomes a genuine stall only when the whole reason repeats — same
+    # family, same motif, same intent — because then nothing changes on screen.
     visuals = [str(s.get("visual", "")) for s in shots]
+    reasons = [
+        (str(s.get("visual", "")), str(b.get("motif", "")), str(b.get("intent", "")))
+        for s, b in shots_with_beat
+    ]
     vcount = Counter(visuals)
     longest_run = 0
     run = 0
     worst_run = ("", 0)
-    for i, v in enumerate(visuals):
-        run = run + 1 if i and v == visuals[i - 1] else 1
+    for i, r in enumerate(reasons):
+        run = run + 1 if i and r == reasons[i - 1] else 1
         if run > longest_run:
             longest_run = run
-            worst_run = (v, i - run + 1)
-    if len(visuals) >= VISUAL_RUN_FAIL and longest_run >= VISUAL_RUN_FAIL:
-        fails.append(f"{longest_run}x consecutive '{worst_run[0]}' shots "
-                     f"(shots {worst_run[1]+1}..{worst_run[1]+longest_run}): "
-                     f"the montage is stalling")
+            worst_run = ("/".join(r) if any(r) else r[0], i - run + 1)
+    if len(reasons) >= VISUAL_RUN_FAIL and longest_run >= VISUAL_RUN_FAIL:
+        fails.append(f"{longest_run}x consecutive shots with the same visual reason "
+                     f"'{worst_run[0]}' (shots {worst_run[1]+1}.."
+                     f"{worst_run[1]+longest_run}): the montage is stalling")
     elif longest_run >= VISUAL_RUN_WARN:
-        warns.append(f"{longest_run}x consecutive '{worst_run[0]}' shots "
-                     f"(shots {worst_run[1]+1}..{worst_run[1]+longest_run})")
+        warns.append(f"{longest_run}x consecutive shots with the same visual reason "
+                     f"'{worst_run[0]}' (shots {worst_run[1]+1}.."
+                     f"{worst_run[1]+longest_run})")
     variety = len(vcount)
     metrics["visual_variety"] = _metric(
         "visual_variety", {k: v for k, v in sorted(vcount.items(), key=lambda x: -x[1])},
@@ -228,6 +241,76 @@ def analyze(project_path: str | Path, manifest_path: str | Path | None = None,
         f"{variety} distinct visuals; longest run {longest_run} ({worst_run[0]})")
     if variety < 3:
         warns.append(f"only {variety} distinct visuals across the edit")
+
+    # --- Content anchoring: decoration share, generic runs, mismatch ---------
+    # A shot is "decorative-only" when it has NO content anchor at all: plain
+    # typography over the field background, no motif domain, no asset, and no
+    # data visual. Motif-bearing plans are gated strictly; legacy plans that
+    # predate motifs are reported, not failed, so old fixtures stay green.
+    legacy_plan = not any(b.get("motif") for b in beats)
+    decorative = [
+        (s, b) for s, b in shots_with_beat
+        if str(s.get("visual", "")) in {"claim", "text", "broll"}
+        and str(b.get("motif", "")) in {"", "cosmos"}
+        and not b.get("assetSrc")
+        and str(b.get("intent", "")) in {"", "detail"}
+    ]
+    decor_seconds = sum(float(s.get("seconds", 0)) for s, _ in decorative)
+    decor_share = decor_seconds / max(1e-9, total_seconds)
+    metrics["decorative_only_share"] = _metric(
+        "decorative_only_share", round(decor_share, 3), "runtime share",
+        f"<= {DECORATIVE_SHARE_FAIL}", legacy_plan or decor_share <= DECORATIVE_SHARE_FAIL,
+        f"{len(decorative)} of {len(shots)} shots ({decor_seconds:.0f}s of "
+        f"{total_seconds:.0f}s) carry no content anchor")
+    if not legacy_plan and decor_share > DECORATIVE_SHARE_FAIL:
+        fails.append(f"decorative-only runtime {decor_share*100:.0f}% exceeds "
+                     f"{DECORATIVE_SHARE_FAIL*100:.0f}%: too many shots are "
+                     "typography with no motif, asset or data")
+    elif not legacy_plan and decor_share > DECORATIVE_SHARE_WARN:
+        warns.append(f"decorative-only runtime {decor_share*100:.0f}% exceeds "
+                     f"{DECORATIVE_SHARE_WARN*100:.0f}%: most claims should be "
+                     "anchored by a motif or an asset")
+    longest_decor_run = run = 0
+    for _, b in shots_with_beat:
+        is_decor = (str(b.get("visual", "")) in {"claim", "text", "broll"}
+                    and str(b.get("motif", "")) in {"", "cosmos"}
+                    and not b.get("assetSrc"))
+        run = run + 1 if is_decor else 0
+        longest_decor_run = max(longest_decor_run, run)
+    metrics["generic_procedural_run"] = _metric(
+        "generic_procedural_run", longest_decor_run, "shots",
+        f"< {GENERIC_RUN_FAIL}", legacy_plan or longest_decor_run < GENERIC_RUN_FAIL,
+        f"longest run of consecutive content-free shots")
+    if not legacy_plan and longest_decor_run >= GENERIC_RUN_FAIL:
+        fails.append(f"{longest_decor_run} consecutive generic procedural shots: "
+                     "nothing content-anchored is changing on screen")
+    # Semantic mismatch: a data visual must be justified by the beat's own
+    # grounding tags, else the card is promising a chart/map the sentence
+    # never delivered. Quote and claim are exempt (claim is the honest default).
+    if not legacy_plan:
+        matches_expected = {
+            "stat": {"stat"}, "counter": {"stat"},
+            "chart": {"chart", "stat"},
+            "timeline": {"timeline"},
+            "map": {"map", "geography"},
+            "portrait": {"portrait", "person"},
+            "logo": {"logo", "company"},
+        }
+        mismatch: list[str] = []
+        for b in beats:
+            vis = str(b.get("visual", ""))
+            expected = matches_expected.get(vis)
+            if not expected:
+                continue
+            tags = {str(t) for t in (b.get("tags") or [])}
+            if tags and not (tags & expected):
+                mismatch.append(f"{b.get('id')} ({vis}) tags={sorted(tags)}")
+        if mismatch:
+            warns.append("visual/narration mismatch (data visual without a "
+                         "supporting content signal): " + ", ".join(mismatch[:8]))
+        metrics["semantic_mismatch"] = _metric(
+            "semantic_mismatch", len(mismatch), "beats", "= 0", not mismatch,
+            " vs ".join(mismatch[:4]) or "none")
 
     # --- Transition density --------------------------------------------------
     noncuts = [s for s in shots if str(s.get("transition", "cut")) != "cut"]

@@ -81,10 +81,14 @@ def _visual_for_evidence(ev: Evidence) -> str:
 
 # Content-supported alternates per visual family: switching a geography beat to a
 # timeline card (for example) is still faithful to the source material and keeps
-# a long factual stretch from stalling into one monotonous visual. "claim" is the
-# universal neutral card — a plain title/text never misrepresents a claim; "broll"
-# is the neutral textured background the claim text sits on, so a run of plain
-# claims can rotate claim/broll without ever inventing a chart or map.
+# a long factual stretch from stalling into one monotonous visual.
+#
+# A plain "claim" intentionally has NO alternates: the moment another visual is
+# not supported by the sentence's own signals, rotating to a procedural backdrop
+# would just be decoration duplicating the narration. A claim stays a claim, and
+# the monotony is broken by its *content-anchored motif* (orbit for satellites,
+# wave for timing signals, grid for ground networks, ...) and by per-shot layout
+# sub-variants — visual reasons that all come from the sentence itself.
 ALTERNATES = {
     "map": ["timeline", "chart", "stat", "claim"],
     "timeline": ["chart", "stat", "map", "claim"],
@@ -93,8 +97,44 @@ ALTERNATES = {
     "logo": ["claim", "stat", "chart"],
     "portrait": ["claim", "quote"],
     "quote": ["claim"],
-    "claim": ["broll"],
+    "claim": [],
 }
+
+
+# Deterministic visual motivations. A motif is a *semantic anchor*: it is chosen
+# from the sentence's own domain vocabulary, so a claim about satellites renders
+# orbit rings and a claim about clock errors renders a signal wave. It is an
+# honest visual metaphor for what the narration is about — never fabricated data.
+# Order matters: the first pattern that matches wins, so the same sentence always
+# yields the same motif.
+MOTIF_PATTERNS: list[tuple[str, tuple[str, ...]]] = [
+    ("orbit", ("satellite", "orbit", "constellation", "spacecraft", "launch", "space",
+               "medium earth orbit", "space force")),
+    ("wave", ("signal", "frequency", "clock", "nanosecond", "microsecond", "radio",
+              "timing", "broadcast", "transmit", "interference", "bandwidth",
+              "l-band", "carrier wave")),
+    ("grid", ("network", "station", "antenna", "ground", "control", "monitor",
+              "uplink", "link", "substation", "grid", "infrastructure")),
+    ("routes", ("route", "airline", "vessel", "shipping", "harbor", "strait", "port",
+                "traffic", "carrier", "cable", "field")),
+    ("chip", ("semiconductor", "chip", "wafer", "fab", "transistor",
+              "manufacturing process", "processor", "nanometer")),
+    ("accounts", ("dollar", "billion", "million", "trillion", "revenue", "market",
+                  "cost", "price", "investment", "economy", "procurement")),
+]
+# Neutral fallback for sentences with no recognisable domain; combined with the
+# chapter's ambient field and the shot's layout sub-variant it still has a visible
+# reason to exist without inventing a domain anchor.
+DEFAULT_MOTIF = "cosmos"
+
+
+def _motif_for(sentence: str) -> str:
+    """Deterministic domain motif derived from the sentence's own vocabulary."""
+    low = (sentence or "").lower()
+    for name, words in MOTIF_PATTERNS:
+        if any(w in low for w in words):
+            return name
+    return DEFAULT_MOTIF
 
 
 def _alternates_for(ev: Evidence) -> list[str]:
@@ -137,10 +177,13 @@ def _pick_visual(ev: Evidence, previous: str | None) -> str:
 
 
 def build_beats(pack: StoryPack) -> list[dict[str, Any]]:
-    """Create a restrained hook → context → evidence → implication → thesis arc.
+    """Create a chapter-structured arc: hook → section/evidence chapters → close.
 
-    Evidence follows the optional explicit `slot` order when provided, so a
-    long documentary can follow chapters instead of importance sorting.
+    Fabricated filler sentences ("The answer sits inside a chain…" or
+    "The important detail is not any single company…") are gone; every beat
+    is drawn from real evidence or the thesis. Each chapter gets a section card,
+    and every beat carries a content-anchored motif that gives it a meaningful
+    visual reason to exist.
     """
     rows = sorted(
         pack.evidence,
@@ -150,52 +193,47 @@ def build_beats(pack: StoryPack) -> list[dict[str, Any]]:
             x.id,
         ),
     )
+    thesis = pack.thesis or pack.title
     beats: list[dict[str, Any]] = [{
-        "id": "hook", "kind": "hook", "text": pack.thesis or pack.title,
-        "seconds": round(max(4.0, read_need(pack.thesis or pack.title)), 2),
+        "id": "hook", "kind": "hook", "text": thesis,
+        "seconds": round(max(4.0, read_need(thesis)), 2),
         "visual": "claim", "emphasis": "high", "label": "THE QUESTION",
+        "chapter": 0, "motif": _motif_for(thesis), "intent": "question",
     }]
-    if rows:
-        context = "The answer sits inside a chain of specialized decisions and infrastructure."
-        beats.append({
-            "id": "context", "kind": "context", "text": context,
-            "seconds": round(max(4.0, read_need(context)), 2),
-            "visual": "broll", "emphasis": "normal", "label": "THE SYSTEM",
-        })
     previous_visual: str | None = None
     previous_chapter: int | None = None
     for i, ev in enumerate(rows):
-        if ev.chapter is not None and ev.chapter != previous_chapter and ev.chapter != 1:
-            title = ev.chapter_title or f"Part {ev.chapter}"
+        chapter = ev.chapter if ev.chapter is not None else 1
+        if chapter != previous_chapter:
+            title = ev.chapter_title or f"Part {chapter}"
             beats.append({
-                "id": f"sec{ev.chapter:02d}", "kind": "section", "text": title,
+                "id": f"sec{chapter:02d}", "kind": "section", "text": title,
                 "seconds": round(max(3.0, read_need(title)), 2),
                 "visual": "chapter", "emphasis": "normal",
-                "label": f"PART {ev.chapter}", "sources": [],
+                "label": f"PART {chapter}", "sources": [],
+                "chapter": chapter, "motif": "chapter", "intent": "structure",
             })
-        previous_chapter = ev.chapter
+            previous_chapter = chapter
         visual = _pick_visual(ev, previous_visual)
         base = 4.0 if ev.importance == "high" else 3.4
         beats.append({
             "id": f"e{i+1:02d}", "kind": "evidence", "text": ev.claim,
             "seconds": round(max(base, read_need(ev.claim)), 2),
-            "visual": visual, "emphasis": "high" if ev.importance == "high" else "normal",
+            "visual": visual,
+            "emphasis": "high" if ev.importance == "high" else "normal",
             "label": ev.source_type.upper(), "sources": [ev.source],
+            "chapter": chapter, "motif": _motif_for(ev.claim),
+            "intent": "punch" if ev.importance == "high" else "detail",
+            "tags": list(ev.tags or []),
         })
         previous_visual = visual
-    implication = "The important detail is not any single company or machine; it is the dependency between them."
-    beats.extend([
-        {
-            "id": "implication", "kind": "implication", "text": implication,
-            "seconds": round(max(4.2, read_need(implication)), 2),
-            "visual": "map", "emphasis": "normal", "label": "THE CONNECTION",
-        },
-        {
-            "id": "thesis", "kind": "thesis", "text": pack.thesis or pack.title,
-            "seconds": round(max(4.4, read_need(pack.thesis or pack.title)), 2),
-            "visual": "quote", "emphasis": "high", "label": "THE THESIS",
-        },
-    ])
+    beats.append({
+        "id": "thesis", "kind": "thesis", "text": thesis,
+        "seconds": round(max(4.4, read_need(thesis)), 2),
+        "visual": "quote", "emphasis": "high", "label": "THE THESIS",
+        "chapter": previous_chapter or 0, "motif": _motif_for(thesis),
+        "intent": "resolve",
+    })
     return beats
 
 

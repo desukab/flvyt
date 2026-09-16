@@ -76,6 +76,28 @@ class RetimeTests(unittest.TestCase):
             self.assertEqual(data["beats"][0]["seconds"], 2.18)
             self.assertEqual(data["beats"][0]["pad_after"], 0.18)
             self.assertEqual(data["beats"][1]["pad_after"], 0.38)
+            self.assertTrue(data.get("timed_by_audio"), "retimed project is audio-truth timed")
+
+    def test_retime_breath_schedule_for_section_cards(self):
+        with tempfile.TemporaryDirectory() as td:
+            td = Path(td)
+            pf = td / "p.json"
+            pf.write_text(json.dumps({
+                "title": "t", "subtitle": "", "fps": 30,
+                "beats": [{"id": "sec01", "kind": "section", "text": "Part One",
+                           "seconds": 3.0, "emphasis": "normal"}],
+            }), encoding="utf-8")
+            audio = td / "sec01.wav"
+            audio.write_bytes(b"\x00" * 10)
+            mf = td / "m.json"
+            mf.write_text(json.dumps({"sec01": str(audio)}), encoding="utf-8")
+            from engine.timing import retime_project, breath_seconds
+            self.assertEqual(breath_seconds("section", "normal"), 0.6)
+            with mock.patch("engine.timing.media_duration", return_value=2.0):
+                changed = retime_project(pf, mf)
+            self.assertEqual(changed, {"sec01": 2.6})
+            data = json.loads(pf.read_text())
+            self.assertEqual(data["beats"][0]["pad_after"], 0.6)
 
     def test_retime_ignores_missing_manifest_entries(self):
         with tempfile.TemporaryDirectory() as td:

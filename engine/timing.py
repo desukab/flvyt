@@ -16,14 +16,24 @@ def media_duration(path: str | Path) -> float:
     return max(0.01, float(result.stdout.strip() or 0))
 
 
+# Breath schedule: how long the edit pauses after a clip. Normal sentences get
+# a short breath; emphatic beats get a longer one; a section card gets the
+# longest pause so a chapter boundary actually breathes before the next block.
+def breath_seconds(kind: str, emphasis: str) -> float:
+    if str(kind) in {"section", "chapter", "hook", "thesis", "close"}:
+        return 0.6
+    return 0.38 if str(emphasis) == "high" else 0.18
+
+
 def retime_project(project_path: str | Path, manifest_path: str | Path,
-                   min_seconds: float = 1.2, pad_seconds: float = 0.18,
-                   emphasis_pad_seconds: float = 0.38) -> dict[str, Any]:
+                   min_seconds: float = 1.2) -> dict[str, Any]:
     """Make visual beat durations follow the actual local narration durations.
 
-    Each beat reserves a small pad after its clip; emphatic beats reserve a
-    longer breath. The pad is stored on the beat so the audio assembler can
+    Each beat reserves a small breath after its clip, depending on kind and
+    emphasis. The breath is stored on the beat so the audio assembler can
     insert the same silence that the timing maths already accounted for.
+    The project is marked `timed_by_audio` so later stages (director) treat
+    these durations as truth instead of re-flooring to a reading-rate estimate.
     """
     project_file = Path(project_path)
     manifest_file = Path(manifest_path)
@@ -45,11 +55,13 @@ def retime_project(project_path: str | Path, manifest_path: str | Path,
             else:
                 continue
         duration = media_duration(audio_path)
-        pad = emphasis_pad_seconds if str(beat.get("emphasis")) == "high" else pad_seconds
+        pad = breath_seconds(beat.get("kind"), beat.get("emphasis"))
         new_seconds = max(min_seconds, duration + pad)
         beat["seconds"] = round(new_seconds, 3)
         beat["pad_after"] = round(beat["seconds"] - duration, 3)
         changed[str(beat.get("id"))] = round(new_seconds, 3)
+    if changed:
+        project["timed_by_audio"] = True
     project_file.write_text(json.dumps(project, indent=2, ensure_ascii=False), encoding="utf-8")
     return changed
 

@@ -95,7 +95,24 @@ class EditorialQualityTests(unittest.TestCase):
                  for i in range(5)]
         report = self._analyze(beats)
         self.assertFalse(report["ok"])
-        self.assertTrue(any("consecutive 'claim'" in f for f in report["fails"]))
+        self.assertTrue(any("same visual reason" in f for f in report["fails"]))
+
+    def test_motif_reason_breaks_claim_run(self):
+        beats = [
+            {"id": "b0", "kind": "evidence", "text": "A satellite constellation orbits.",
+             "seconds": 3.4, "visual": "claim", "motif": "orbit", "intent": "detail",
+             "shots": [_shot("s1", 3.4, "A satellite constellation orbits.")]},
+            {"id": "b1", "kind": "evidence", "text": "A ground station monitors it.",
+             "seconds": 3.4, "visual": "claim", "motif": "grid", "intent": "detail",
+             "shots": [_shot("s1", 3.4, "A ground station monitors it.")]},
+            {"id": "b2", "kind": "evidence", "text": "Nanosecond clocks set the timing.",
+             "seconds": 3.4, "visual": "claim", "motif": "wave", "intent": "detail",
+             "shots": [_shot("s1", 3.4, "Nanosecond clocks set the timing.")]},
+        ]
+        report = self._analyze(beats)
+        self.assertTrue(report["ok"], msg="\n".join(report["fails"]))
+        self.assertFalse(any("same visual reason" in f for f in report["fails"]))
+        self.assertFalse(any("same visual reason" in w for w in report["warns"]))
 
     def test_long_doc_without_sections_warns(self):
         beats = [
