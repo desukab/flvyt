@@ -100,11 +100,11 @@ def mix(narration: str | Path, music: str | Path | None, output: str | Path,
         return out
     dur = duration(narration)
     filt = (
-        f"[0:a]highpass=f=70,acompressor=threshold=-18dB:ratio=3:attack=15:release=250[v];"
+        f"[0:a]highpass=f=70,acompressor=threshold=-18dB:ratio=3:attack=15:release=250[voice];"
         f"[1:a]atrim=0:{dur:.3f},volume={music_volume},afade=t=in:d=1,"
-        f"afade=t=out:st={max(0, dur - 2):.3f}:d=2[m];"
-        f"[m][v]sidechaincompress=threshold=0.03:ratio=8:attack=5:release=300[duck];"
-        f"[v][duck]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11"
+        f"afade=t=out:st={max(0, dur - 2):.3f}:d=2[bedminus];"
+        f"[bedminus][voice]sidechaincompress=threshold=0.03:ratio=8:attack=5:release=300[ducked];"
+        f"[voice][ducked]amix=inputs=2:duration=first:normalize=0,loudnorm=I=-14:TP=-1.5:LRA=11"
     )
     run(["ffmpeg", "-v", "error", "-y", "-i", str(narration), "-stream_loop", "-1", "-i", str(music),
          "-filter_complex", filt, "-ar", "48000", "-ac", "2", "-t", f"{dur:.3f}", str(out)])

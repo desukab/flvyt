@@ -7,7 +7,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from engine.audio import assemble_narration, concat_wavs, duration
+from engine.audio import assemble_narration, concat_wavs, duration, mix
+from engine.score import render_bed
 
 HAVE_FFMPEG = shutil.which("ffmpeg") and shutil.which("ffprobe")
 
@@ -69,6 +70,19 @@ class AudioAssemblyTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             with self.assertRaises(ValueError):
                 concat_wavs([], Path(td) / "x.wav")
+
+    def test_mix_ducked_music_bed_succeeds(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            nar = root / "nar.wav"
+            make_tone(nar, 2.0)
+            bed = render_bed(2.5, [{"seconds": 1.25, "chapter": 0},
+                                   {"seconds": 1.25, "chapter": 1}],
+                             root / "bed.wav", work_dir=root / "w")
+            out = root / "out.wav"
+            mix(nar, Path(bed["wav"]), out)
+            self.assertTrue(out.exists())
+            self.assertAlmostEqual(duration(out), 2.0, delta=0.25)
 
 
 if __name__ == "__main__":
