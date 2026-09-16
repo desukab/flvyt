@@ -109,18 +109,25 @@ ALTERNATES = {
 # yields the same motif.
 MOTIF_PATTERNS: list[tuple[str, tuple[str, ...]]] = [
     ("orbit", ("satellite", "orbit", "constellation", "spacecraft", "launch", "space",
-               "medium earth orbit", "space force")),
+               "medium earth orbit", "space force", "replacement", "spare", "degrade",
+               "active unit", "geostationary", "aurora", "rocket")),
     ("wave", ("signal", "frequency", "clock", "nanosecond", "microsecond", "radio",
               "timing", "broadcast", "transmit", "interference", "bandwidth",
-              "l-band", "carrier wave")),
+              "l-band", "carrier wave", "atomic", "rubidium", "cesium",
+              "positioning", "navigation", "receiver", "device", "phase",
+              "watt", "jamming", "clock error", "synchron")),
     ("grid", ("network", "station", "antenna", "ground", "control", "monitor",
-              "uplink", "link", "substation", "grid", "infrastructure")),
+              "uplink", "link", "substation", "grid", "infrastructure",
+              "power", "utility", "electric", "base station", "cable")),
     ("routes", ("route", "airline", "vessel", "shipping", "harbor", "strait", "port",
-                "traffic", "carrier", "cable", "field")),
+                "traffic", "carrier", "cable", "field", "airport", "aviation",
+                "flight", "lane", "navigation aids", "vessel traffic")),
     ("chip", ("semiconductor", "chip", "wafer", "fab", "transistor",
-              "manufacturing process", "processor", "nanometer")),
+              "manufacturing process", "processor", "nanometer",
+              "lithography", "foundry", "die")),
     ("accounts", ("dollar", "billion", "million", "trillion", "revenue", "market",
-                  "cost", "price", "investment", "economy", "procurement")),
+                  "cost", "price", "investment", "economy", "procurement",
+                  "adoption", "usage", "end user", "receiver count", "economic")),
 ]
 # Neutral fallback for sentences with no recognisable domain; combined with the
 # chapter's ambient field and the shot's layout sub-variant it still has a visible

@@ -64,7 +64,16 @@ class AudioAssemblyTests(unittest.TestCase):
             make_tone(root / "b1.wav", 0.5)
             make_tone(root / "b2.wav", 0.5)
             out = assemble_narration(beats, manifest, root / "master.wav", cwd=root)
-            self.assertAlmostEqual(duration(out), 1.2, delta=0.07)
+            from engine.project import INTRO_SECONDS
+            self.assertAlmostEqual(duration(out), INTRO_SECONDS + 1.2, delta=0.07)
+
+    def test_concat_lead_in_prepends_fixed_silence(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            a = root / "a.wav"
+            make_tone(a, 0.5)
+            out = concat_wavs([a], root / "master.wav", lead_in=5.0)
+            self.assertAlmostEqual(duration(out), 5.5, delta=0.05)
 
     def test_empty_paths_raises(self):
         with tempfile.TemporaryDirectory() as td:

@@ -33,13 +33,16 @@ def _silence_bank(out_dir: Path, seconds: float) -> Path:
 
 
 def concat_wavs(paths: list[str | Path], output: str | Path,
-                tail_pads: list[float] | None = None) -> Path:
+                tail_pads: list[float] | None = None,
+                lead_in: float = 0.0) -> Path:
     """Concatenate narration clips, inserting a pause after each clip.
 
     `tail_pads` carries the exact silence budget a beat's timing already
     reserved, so the narration master always lines up with the picture, and
     emphatic beats get a deliberate breath instead of narration butting into
     the next clip.
+    `lead_in` prepends a fixed silence (e.g. the title-card intro) so the
+    narration starts exactly when the first beat appears on screen.
     """
     if not paths:
         raise ValueError("No narration WAV files supplied")
@@ -48,18 +51,31 @@ def concat_wavs(paths: list[str | Path], output: str | Path,
     pads = [float(p or 0) for p in (tail_pads or [])]
     if len(pads) < len(paths):
         pads.extend([0.0] * (len(paths) - len(pads)))
+    lead = float(lead_in or 0.0)
     bank: dict[float, Path] = {}
-    for sec in sorted({p for p in pads if p > 0}):
+    for sec in sorted({p for p in pads + [lead] if p > 0}):
         bank[sec] = _silence_bank(out.parent, sec)
-    listing = out.with_suffix(".concat.txt")
-    lines: list[str] = []
+    clips: list[Path] = []
+    if lead > 0:
+        clips.append(bank[lead])
     for path, pad in zip(paths, pads):
-        lines.append(f"file '{Path(path).resolve().as_posix()}'")
+        clips.append(Path(path))
         if pad > 0:
-            lines.append(f"file '{bank[pad].resolve().as_posix()}'")
-    listing.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    run(["ffmpeg", "-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(listing),
-         "-ar", "48000", "-ac", "2", "-c:a", "pcm_s24le", str(out)])
+            clips.append(bank[pad])
+    # Normalize every clip (narration wavs can be 22.05k mono while the pause
+    # bank is 48k stereo) through a concat *filter*, not the concat demuxer,
+    # which would stitch raw samples at the wrong rate and shrink each clip.
+    graph = (
+        "".join(f"[{i}:a]aformat=sample_rates=48000:channel_layouts=stereo[a{i}];"
+                for i in range(len(clips)))
+        + "".join(f"[a{i}]" for i in range(len(clips)))
+        + f"concat=n={len(clips)}:v=0:a=1[aout]"
+    )
+    inputs: list[str] = []
+    for clip in clips:
+        inputs += ["-i", str(clip)]
+    run(["ffmpeg", "-v", "error", "-y", *inputs, "-filter_complex", graph,
+         "-map", "[aout]", "-ar", "48000", "-ac", "2", "-c:a", "pcm_s24le", str(out)])
     return out
 
 
@@ -69,7 +85,10 @@ def assemble_narration(beats: list[dict[str, Any]], manifest: dict[str, str],
 
     The pad schedule comes from the same timing pass that sized each beat, so
     audio and picture can never drift once both are derived from the clips.
+    A lead-in matching the title card widths the master to the picture, so the
+    narration starts on the first beat instead of playing over the intro.
     """
+    from .project import INTRO_SECONDS
     root = Path(cwd) if cwd else Path.cwd()
     paths: list[Path] = []
     pads: list[float] = []
@@ -86,7 +105,7 @@ def assemble_narration(beats: list[dict[str, Any]], manifest: dict[str, str],
             path = Path.cwd() / path
         paths.append(path)
         pads.append(float(beat.get("pad_after", 0) or 0))
-    return concat_wavs(paths, output, tail_pads=pads)
+    return concat_wavs(paths, output, tail_pads=pads, lead_in=INTRO_SECONDS)
 
 
 def mix(narration: str | Path, music: str | Path | None, output: str | Path,

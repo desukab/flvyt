@@ -14,7 +14,7 @@ sys.path.insert(0, str(ROOT))
 from engine.audio import concat_wavs
 from engine.editorial import add_shots
 from engine.editorial_gate import raise_if_invalid
-from engine.project import Project
+from engine.project import INTRO_SECONDS, Project
 from engine.quality import probe
 from engine.transitions import assign_transitions
 
@@ -41,6 +41,9 @@ def main(argv: list[str] | None = None) -> int:
     add_shots(project.beats)
     assign_transitions(project.beats)
     raise_if_invalid(project.beats, fps=project.fps)
+    # The tones below are authored to each beat's seconds, so the picture must
+    # follow those exact durations instead of re-flooring to a reading rate.
+    project.timed_by_audio = True
     runtime_project = ROOT / "out/acceptance/production_runtime.json"
     runtime_project.parent.mkdir(parents=True, exist_ok=True)
     runtime_project.write_text(json.dumps(project.props(), indent=2, ensure_ascii=False), encoding="utf-8")
@@ -53,7 +56,7 @@ def main(argv: list[str] | None = None) -> int:
         make_tone(wav, beat.seconds)
         wavs.append(wav)
 
-    master = concat_wavs(wavs, narration_dir / "master.wav")
+    master = concat_wavs(wavs, narration_dir / "master.wav", lead_in=INTRO_SECONDS)
     subprocess.run([
         sys.executable, str(ROOT / "scripts/render.py"),
         str(runtime_project), "--out", str(out), "--narration", str(master),

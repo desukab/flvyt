@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -125,6 +127,68 @@ class ProduceTests(unittest.TestCase):
                 third = pipeline.produce(str(project), out=str(out), state_file=state)
             self.assertTrue(second["steps"][-1].get("skipped"))
             self.assertFalse(third["steps"][-1].get("skipped"))
+
+    @unittest.skipUnless(shutil.which("ffmpeg") and shutil.which("ffprobe"),
+                         "requires local ffmpeg/ffprobe")
+    def test_narration_synthesized_before_retime_and_master_matches_picture(self):
+        """A single build must retime the plan with audio durations and size the
+        narration master exactly to the picture (intro + beats), so the delivery
+        gates see no silent tail and no re-floored dense shots."""
+        from engine.audio import duration
+
+        with tempfile.TemporaryDirectory() as td:
+            home = Path(td)
+            project = _project(home)
+            project = home / "p.json"
+            project.write_text(json.dumps(json.loads(project.read_text(encoding="utf-8"))),
+                               encoding="utf-8")
+            out = home / "final.mp4"
+
+            def fake_run(cmd, **kwargs):
+                args = [str(a) for a in cmd]
+                if any("synthesize.py" in a for a in args):
+                    out_dir = args[args.index("--out-dir") + 1]
+                    base = Path(pipeline.ROOT) / out_dir
+                    base.mkdir(parents=True, exist_ok=True)
+                    beats = json.loads(project.read_text(encoding="utf-8"))["beats"]
+                    manifest: dict[str, str] = {}
+                    for beat in beats:
+                        wav = base / f"{beat['id']}.wav"
+                        subprocess.run([
+                            "ffmpeg", "-v", "error", "-y",
+                            "-f", "lavfi", "-i", "sine=frequency=220:duration=0.3",
+                            "-ar", "48000", "-ac", "1", str(wav),
+                        ], check=True)
+                        manifest[beat["id"]] = str(wav)
+                    (base / "tts_manifest.json").write_text(
+                        json.dumps(manifest, indent=2), encoding="utf-8")
+                elif any("render.py" in a for a in args):
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    out.write_bytes(b"x" * 64)
+                elif any("captions.py" in a for a in args) or any("transcribe.py" in a for a in args):
+                    pass
+
+            with mock.patch.object(pipeline, "ROOT", home), \
+                 mock.patch.object(pipeline, "WORK", home / "out"), \
+                 mock.patch.object(pipeline, "STATE_FILE", home / "out" / "pipeline_state.json"), \
+                 mock.patch.object(pipeline, "_run", side_effect=fake_run):
+                pipeline.produce(str(project), out=str(out), state_file=home / "state.json",
+                                 tts_command="espeak-ng -w {output}", auto_captions=False)
+
+            raw = json.loads(project.read_text(encoding="utf-8"))
+            self.assertTrue(raw.get("timed_by_audio"),
+                            "plan must be marked timed_by_audio after narration")
+            master = home / "out" / "narration" / "master.wav"
+            self.assertTrue(master.exists(), "narration master must exist")
+            beats = raw["beats"]
+            self.assertTrue(all(b["pad_after"] > 0 for b in beats),
+                            "breath schedule must be recorded on every beat")
+
+            from engine.project import INTRO_SECONDS, Project
+            final = Project.load(project)
+            expected_video = final.duration_frames() / final.fps
+            self.assertAlmostEqual(duration(master), expected_video, delta=0.2,
+                                   msg="audio master must equal the picture budget")
 
 
 class FailureTests(unittest.TestCase):

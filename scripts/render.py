@@ -135,9 +135,7 @@ def main() -> int:
         if music and not music.is_absolute():
             music = ROOT / music
         if not music and narration:
-            total = sum(float(b.get("seconds") or 0) for b in project.props()["beats"])
-            if total <= 0:
-                total = project.duration_frames() / max(float(project.fps or 30), 1)
+            total = project.duration_frames() / max(float(project.fps or 30), 1)
             music_info = render_bed(total, project.props()["beats"], work / "bed.wav")
             music = Path(music_info["wav"])
         if narration:

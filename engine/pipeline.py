@@ -241,22 +241,24 @@ def produce(source: str | None = None, *, topic: str | None = None,
                "--out-dir", "out/narration"]
         if tts_model:
             cmd += ["--model", tts_model]
+        manifest_file = ROOT / "out/narration/tts_manifest.json"
         master = "out/narration/master.wav"
+        run_stage("narration", cmd, [project], str(manifest_file))
 
         def finish_narration() -> None:
             from engine.audio import assemble_narration
             from engine.timing import retime_project
-            manifest = ROOT / "out/narration/tts_manifest.json"
-            if manifest.exists():
-                retime_project(project, manifest)
+            if manifest_file.exists():
+                retime_project(project, manifest_file)
                 refresh_editorial_plan(project)
-                manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
+                manifest_data = json.loads(manifest_file.read_text(encoding="utf-8"))
                 beats_data = json.loads(Path(project).read_text(encoding="utf-8"))["beats"]
-                if any(b["id"] in manifest_data for b in beats_data):
+                if any(str(b["id"]) in manifest_data for b in beats_data):
                     assemble_narration(beats_data, manifest_data,
                                        WORK / "narration/master.wav", cwd=ROOT)
 
-        run_stage("narration", cmd, [project], master, work=finish_narration)
+        run_stage("narrplan", ["in-process", "finish_narration", str(project)],
+                  [project, manifest_file], master, work=finish_narration)
         narration = (WORK / master).exists()
 
     transcript = None

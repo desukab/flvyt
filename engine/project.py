@@ -60,7 +60,7 @@ class Project:
     def duration_frames(self) -> int:
         beats = self.beats or []
         seconds = INTRO_SECONDS + sum(max(0.5, b.seconds) for b in beats)
-        return int(round(max(30.0, seconds) * self.fps))
+        return int(round(max(1.0, seconds) * self.fps))
 
     def save_props(self, path: str | Path) -> None:
         Path(path).write_text(json.dumps(self.props(), indent=2), encoding="utf-8")

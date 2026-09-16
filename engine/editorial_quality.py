@@ -208,13 +208,17 @@ def analyze(project_path: str | Path, manifest_path: str | Path | None = None,
 
     # --- Visual variety and montage streaks ---------------------------------
     # A shot's *visual reason* is its (visual family, content-anchored motif,
-    # intent) triple. Two claims in a row are not a stutter: the renderer breaks
-    # the family with the beat's motif field and the shot's layout sub-variant.
-    # A run becomes a genuine stall only when the whole reason repeats — same
-    # family, same motif, same intent — because then nothing changes on screen.
+    # on-screen mode) triple. Two claims in a row are not a stutter: the renderer
+    # breaks the family with the beat's motif field and the shot's layout
+    # sub-variant. A run becomes a genuine stall only when the whole reason
+    # repeats — same family, same motif, same shot mode — because then nothing
+    # changes on screen. Shot modes differ within a beat (a data visual opens,
+    # pans to detail, then holds), so a beat's own decompose shots never read as
+    # a stall; three identical single-thought beats in a row still do.
     visuals = [str(s.get("visual", "")) for s in shots]
     reasons = [
-        (str(s.get("visual", "")), str(b.get("motif", "")), str(b.get("intent", "")))
+        (str(s.get("visual", "")), str(b.get("motif", "")),
+         str(s.get("mode", "") or b.get("intent", "")))
         for s, b in shots_with_beat
     ]
     vcount = Counter(visuals)
@@ -270,8 +274,12 @@ def analyze(project_path: str | Path, manifest_path: str | Path | None = None,
         warns.append(f"decorative-only runtime {decor_share*100:.0f}% exceeds "
                      f"{DECORATIVE_SHARE_WARN*100:.0f}%: most claims should be "
                      "anchored by a motif or an asset")
+    # A "generic procedural run" is a run of whole beats that are content-free —
+    # a beat whose multi-shot decomposition repeats its own card is a deliberate
+    # establish→zoom→hold, not three stale shots. Consecutive content-free beats
+    # are the real stall, so the run is counted across beats, not sub-shots.
     longest_decor_run = run = 0
-    for _, b in shots_with_beat:
+    for b in beats:
         is_decor = (str(b.get("visual", "")) in {"claim", "text", "broll"}
                     and str(b.get("motif", "")) in {"", "cosmos"}
                     and not b.get("assetSrc"))

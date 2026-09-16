@@ -4,7 +4,7 @@ import {Documentary, DocumentaryProps} from './Documentary';
 
 const calculateMetadata = ({props}: {props: DocumentaryProps}) => {
   const beats = props.beats ?? [];
-  const seconds = Math.max(30, 5 + beats.reduce((sum, beat) => sum + Math.max(0.5, beat.seconds || 0), 0));
+  const seconds = Math.max(1, 5 + beats.reduce((sum, beat) => sum + Math.max(0.5, beat.seconds || 0), 0));
   return {durationInFrames: Math.ceil(seconds * (props.fps || 30))};
 };
 

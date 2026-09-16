@@ -114,6 +114,71 @@ class EditorialQualityTests(unittest.TestCase):
         self.assertFalse(any("same visual reason" in f for f in report["fails"]))
         self.assertFalse(any("same visual reason" in w for w in report["warns"]))
 
+    def test_beam_shot_modes_do_not_stutter(self):
+        # A single beat's establish -> move -> hold decompose is deliberate shot
+        # variety, not three stale cards; the run must not count it as a stall.
+        beat = {"id": "b0", "kind": "evidence",
+                "text": "A constellation of satellites broadcasts precise timing.",
+                "seconds": 9.0, "visual": "map", "motif": "cosmos", "intent": "punch",
+                "shots": [
+                    _shot("s1", 3.0, "A constellation broadcasts precise timing.", visual="map", mode="establish"),
+                    _shot("s2", 3.0, "precise timing signals.", visual="map", mode="move"),
+                    _shot("s3", 3.0, "precise timing signals.", visual="map", mode="hold"),
+                ]}
+        report = self._analyze([beat])
+        self.assertTrue(report["ok"], msg="\n".join(report["fails"]))
+        self.assertFalse(any("same visual reason" in f for f in report["fails"]))
+        self.assertFalse(any("same visual reason" in w for w in report["warns"]))
+        self.assertFalse(any("generic procedural" in f for f in report["fails"]))
+
+    def test_identical_reason_across_beats_still_fails(self):
+        beats = []
+        for i in range(4):
+            beats.append({"id": f"b{i}", "kind": "evidence", "text": f"Claim {i}.",
+                          "seconds": 3.4, "visual": "claim", "motif": "cosmos",
+                          "intent": "detail",
+                          "shots": [_shot("s1", 3.4, f"Claim {i}.")]})
+        beats.append({"id": "b4", "kind": "evidence", "text": "Claim 4.",
+                      "seconds": 3.4, "visual": "claim", "motif": "cosmos",
+                      "intent": "detail",
+                      "shots": [_shot("s1", 3.4, "Claim 4.")]})
+        report = self._analyze(beats)
+        self.assertFalse(report["ok"], msg="\n".join(report["fails"]))
+        self.assertTrue(any("same visual reason" in f for f in report["fails"]))
+        self.assertTrue(any("generic procedural" in f for f in report["fails"]))
+
+    def test_decor_run_counts_beats_not_shots(self):
+        # Two consecutive content-free beats (each a deliberate establish->hold
+        # decompose) are a two-beat run, not a six-shot generic stall. A healthy
+        # share of the edit stays content-anchored so the share gate is green.
+        beats = [
+            {"id": "b0", "kind": "evidence", "text": "One point stands alone.",
+             "seconds": 3.0, "visual": "claim", "motif": "cosmos",
+             "shots": [_shot("s1", 1.5, "One point", mode="establish"),
+                       _shot("s2", 1.5, "alone", mode="hold")]},
+            {"id": "b1", "kind": "evidence", "text": "A second line follows it.",
+             "seconds": 3.0, "visual": "claim", "motif": "cosmos",
+             "shots": [_shot("s1", 1.5, "A second", mode="establish"),
+                       _shot("s2", 1.5, "follows", mode="hold")]},
+            {"id": "b2", "kind": "evidence", "text": "Orbits time the constellation.",
+             "seconds": 4.0, "visual": "map", "motif": "orbit",
+             "shots": [_shot("s1", 1.3, "Orbits", visual="map", mode="establish"),
+                       _shot("s2", 1.4, "time the", visual="map", mode="move"),
+                       _shot("s3", 1.3, "constellation", visual="map", mode="hold")]},
+            {"id": "b3", "kind": "evidence", "text": "Stations monitor the fleet.",
+             "seconds": 4.0, "visual": "timeline", "motif": "grid",
+             "shots": [_shot("s1", 4.0, "Stations monitor the fleet.", visual="timeline", mode="move")]},
+            {"id": "b4", "kind": "evidence", "text": "Billion receivers rely on it.",
+             "seconds": 4.0, "visual": "stat", "motif": "accounts",
+             "shots": [_shot("s1", 4.0, "Billion receivers rely.", visual="stat", mode="count")]},
+        ]
+        report = self._analyze(beats)
+        self.assertTrue(report["ok"], msg="\n".join(report["fails"]))
+        self.assertFalse(any("generic procedural" in f for f in report["fails"]))
+        self.assertFalse(any("same visual reason" in f for f in report["fails"]))
+        decor = report["metrics"]["decorative_only_share"]
+        self.assertLessEqual(decor["value"], 0.30)
+
     def test_long_doc_without_sections_warns(self):
         beats = [
             _beat(f"b{i}", "evidence", 3.4, f"Evidence claim {i}.",
