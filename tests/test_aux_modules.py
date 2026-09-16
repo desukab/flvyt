@@ -99,6 +99,33 @@ class RetimeTests(unittest.TestCase):
             data = json.loads(pf.read_text())
             self.assertEqual(data["beats"][0]["pad_after"], 0.6)
 
+    def test_retime_resolves_manifest_rooted_at_repo_output_dir(self):
+        # CI layout: project lives under projects/ while the TTS manifest paths
+        # are rooted at the repo's out/ directory and cwd is the repo root.
+        with tempfile.TemporaryDirectory() as td:
+            td = Path(td)
+            proj_dir = td / "projects"
+            proj_dir.mkdir()
+            pf = proj_dir / "p.json"
+            pf.write_text(json.dumps({
+                "title": "t", "subtitle": "", "fps": 30,
+                "beats": [{"id": "b1", "kind": "evidence", "text": "x",
+                           "seconds": 3.0, "emphasis": "normal"}],
+            }), encoding="utf-8")
+            audio = td / "out/narration/b1.wav"
+            audio.parent.mkdir(parents=True)
+            audio.write_bytes(b"\x00" * 10)
+            mf = proj_dir / "m.json"
+            mf.write_text(json.dumps({"b1": "out/narration/b1.wav"}), encoding="utf-8")
+            from engine.timing import retime_project
+            with mock.patch("engine.timing.media_duration", return_value=2.0):
+                with mock.patch("pathlib.Path.cwd", return_value=td):
+                    changed = retime_project(pf, mf)
+            self.assertEqual(changed, {"b1": 2.18}, "repo-rooted manifest paths must resolve")
+            data = json.loads(pf.read_text())
+            self.assertTrue(data.get("timed_by_audio"))
+            self.assertEqual(data["beats"][0]["seconds"], 2.18)
+
     def test_retime_ignores_missing_manifest_entries(self):
         with tempfile.TemporaryDirectory() as td:
             td = Path(td)

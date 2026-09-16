@@ -277,9 +277,13 @@ def produce(source: str | None = None, *, topic: str | None = None,
                     })
                 report_path = WORK / "narration/timing_report.json"
                 report_path.write_text(json.dumps({"beats": rows}, indent=2), encoding="utf-8")
+                voiced = [r for r in rows if r["wav"] is not None]
                 missing = [r["id"] for r in rows if r["wav"] is None]
-                print(f"[timing] master alignment: {len(rows) - len(missing)}/{len(rows)} beats voiced; "
-                      f"missing={missing or 'none'}", flush=True)
+                drift_total = sum(r["drift"] or 0 for r in voiced)
+                drifters = [f"{r['id']}:{r['drift']:+.2f}" for r in voiced if abs(r["drift"] or 0) > 0.05]
+                print(f"[timing] master alignment: {len(voiced)}/{len(rows)} beats voiced "
+                      f"(missing={missing or 'none'}); Σseconds−Σ(wav+pad)={drift_total:+.2f}s "
+                      f"drifters={drifters}", flush=True)
 
         run_stage("narrplan", ["in-process", "finish_narration", str(project)],
                   [project, manifest_file], master, work=finish_narration)

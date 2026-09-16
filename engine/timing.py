@@ -44,16 +44,18 @@ def retime_project(project_path: str | Path, manifest_path: str | Path,
         audio = manifest.get(str(beat.get("id")))
         if not audio:
             continue
-        audio_path = Path(audio)
-        if not audio_path.is_absolute():
-            audio_path = project_file.parent / audio_path
-        if not audio_path.exists():
-            # Manifest paths may be rooted at the repository output directory.
-            alt = Path.cwd() / audio_path
-            if alt.exists():
-                audio_path = alt
-            else:
-                continue
+        raw = Path(audio)
+        candidates = [raw]
+        if not raw.is_absolute():
+            # Manifest paths may be relative to the project file's repo or
+            # rooted at the repository output directory (CI runs with cwd=repo
+            # root while the project lives under projects/). Probe both roots
+            # *before* freezing the path, otherwise any absolute fallback
+            # re-pins to the first (missing) candidate.
+            candidates = [project_file.parent / raw, Path.cwd() / raw]
+        audio_path = next((candidate for candidate in candidates if candidate.exists()), None)
+        if audio_path is None:
+            continue
         duration = media_duration(audio_path)
         pad = breath_seconds(beat.get("kind"), beat.get("emphasis"))
         new_seconds = max(min_seconds, duration + pad)
